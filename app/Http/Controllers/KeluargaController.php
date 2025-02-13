@@ -13,13 +13,19 @@ class KeluargaController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        if (empty($search)) {
-            $keluarga = Keluarga::all();
-        } else {
-            $keluarga = Keluarga::where('keluarga', 'like', "%$search%")->get();
+        try {
+            $search = $request->query('search');
+            if (empty($search)) {
+                $keluarga = Keluarga::all();
+            } else {
+                $keluarga = Keluarga::where('keluarga', 'like', "%$search%")->get();
+            }
+            return response()->json(['data' => $keluarga], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-        return response()->json(['data' => $keluarga], 200);
     }
 
     /**
@@ -29,10 +35,17 @@ class KeluargaController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'keluarga' => 'required|string|max:120|unique:keluarga,keluarga',
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 400);
         }
 
         try {
@@ -40,9 +53,14 @@ class KeluargaController extends Controller
                 'keluarga' => $request->keluarga
             ]);
 
-            return response()->json(['message' => 'Keluarga created successfully', 'data' => $keluarga], 201);
+            return response()->json([
+                'message' => 'Keluarga created successfully',
+                'data' => $keluarga
+            ], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -53,10 +71,17 @@ class KeluargaController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'keluarga' => 'required|string|max:120|unique:keluarga,keluarga,' . $id,
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 400);
         }
 
         try {
@@ -64,9 +89,11 @@ class KeluargaController extends Controller
                 'keluarga' => $request->keluarga
             ]);
 
-            return response()->json(['message' => 'Keluarga Edited successfully', 'data' => $keluarga], 201);
+            return response()->json(['message' => 'Keluarga Edited successfully', 'data' => $keluarga], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -77,10 +104,44 @@ class KeluargaController extends Controller
     {
         try {
             $keluarga = Keluarga::find($id);
+
+            if (!$keluarga) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
             $keluarga->delete();
-            return response()->json(['message' => 'Keluarga deleted successfully', 'data' => null], 200);
+            return response()->json([
+                'message' => 'Keluarga deleted successfully'
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 404);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $keluarga = Keluarga::onlyTrashed()->find($id);
+
+            if (!$keluarga) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan dalam sampah'
+                ], 404);
+            }
+
+            $keluarga->restore();
+
+            return response()->json([
+                'message' => 'Data berhasil dikembalikan'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 }

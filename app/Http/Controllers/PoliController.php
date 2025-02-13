@@ -77,10 +77,42 @@ class PoliController extends Controller
     {
         try {
             $poli = Poli::find($id);
+
+            if (!$poli) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
             $poli->delete();
-            return response()->json(['message' => 'Poli deleted successfully', 'data' => null], 200);
+            return response()->json(['message' => 'Poli deleted successfully'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 404);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $poli = Poli::onlyTrashed()->find($id);
+
+            if (!$poli) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan dalam sampah'
+                ], 404);
+            }
+
+            $poli->restore();
+
+            return response()->json([
+                'message' => 'Data berhasil dikembalikan'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 }

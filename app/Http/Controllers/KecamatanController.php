@@ -124,4 +124,27 @@ class KecamatanController extends Controller
             ], 500);
         }
     }
+
+    public function restore($id)
+    {
+        try {
+            $kecamatan = Kecamatan::onlyTrashed()->find($id);
+
+            if (!$kecamatan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan dalam sampah'
+                ], 404);
+            }
+
+            $kecamatan->restore();
+
+            return response()->json([
+                'message' => 'Data berhasil dikembalikan'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
 }

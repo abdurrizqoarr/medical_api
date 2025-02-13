@@ -77,10 +77,42 @@ class PendidikanController extends Controller
     {
         try {
             $pendidikan = Pendidikan::find($id);
+
+            if (!$pendidikan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
             $pendidikan->delete();
             return response()->json(['message' => 'Pendidikan deleted successfully', 'data' => null], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 404);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $pendidikan = Pendidikan::onlyTrashed()->find($id);
+
+            if (!$pendidikan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan dalam sampah'
+                ], 404);
+            }
+
+            $pendidikan->restore();
+
+            return response()->json([
+                'message' => 'Data berhasil dikembalikan'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 }

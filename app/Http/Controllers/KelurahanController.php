@@ -13,13 +13,19 @@ class KelurahanController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        if (empty($search)) {
-            $kelurahan = Kelurahan::all();
-        } else {
-            $kelurahan = Kelurahan::where('kelurahan', 'like', "%$search%")->get();
+        try {
+            $search = $request->query('search');
+            if (empty($search)) {
+                $kelurahan = Kelurahan::all();
+            } else {
+                $kelurahan = Kelurahan::where('kelurahan', 'like', "%$search%")->get();
+            }
+            return response()->json(['data' => $kelurahan], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-        return response()->json(['data' => $kelurahan], 200);
     }
 
     /**
@@ -29,10 +35,17 @@ class KelurahanController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'kelurahan' => 'required|string|max:120|unique:kelurahan,kelurahan',
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 400);
         }
 
         try {
@@ -42,7 +55,9 @@ class KelurahanController extends Controller
 
             return response()->json(['message' => 'Kelurahan created successfully', 'data' => $kelurahan], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -53,10 +68,17 @@ class KelurahanController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'kelurahan' => 'required|string|max:120|unique:kelurahan,kelurahan,' . $id,
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 400);
         }
 
         try {
@@ -64,9 +86,11 @@ class KelurahanController extends Controller
                 'kelurahan' => $request->kelurahan
             ]);
 
-            return response()->json(['message' => 'Kelurahan Edited successfully', 'data' => $kelurahan], 201);
+            return response()->json(['message' => 'Kelurahan Edited successfully', 'data' => $kelurahan], 20);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -77,10 +101,42 @@ class KelurahanController extends Controller
     {
         try {
             $kelurahan = Kelurahan::find($id);
+
+            if (!$kelurahan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
             $kelurahan->delete();
             return response()->json(['message' => 'kelurahan deleted successfully', 'data' => null], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 404);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $kelurahan = Kelurahan::onlyTrashed()->find($id);
+
+            if (!$kelurahan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan dalam sampah'
+                ], 404);
+            }
+
+            $kelurahan->restore();
+
+            return response()->json([
+                'message' => 'Data berhasil dikembalikan'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 }
