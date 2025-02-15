@@ -13,15 +13,22 @@ class PegawaiController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        if (empty($search)) {
-            $pegawai = Pegawai::all();
-        } else {
-            $pegawai = Pegawai::where('nama', 'like', "%$search%")
-                ->orWhere('nik', 'like', "%$search%")
-                ->get();
+        try {
+            $search = $request->query('search');
+            if (empty($search)) {
+                $pegawai = Pegawai::all();
+            } else {
+                $pegawai = Pegawai::where('nama', 'like', "%$search%")
+                    ->orWhere('nik', 'like', "%$search%")
+                    ->orWhere('nip', 'like', "%$search%")
+                    ->get();
+            }
+            return response()->json(['data' => $pegawai], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-        return response()->json(['data' => $pegawai], 200);
     }
 
     /**
@@ -35,14 +42,26 @@ class PegawaiController extends Controller
             'nip' => 'required|string|max:40|unique:pegawai,nip',
             'nama' => 'required|string|max:240',
             'jenis_kelamin' => 'required|in:PRIA,WANITA',
-            'tempat_lahir' => 'required|string|max:120',
+            'tempat_lahir' => 'required|string|max:240',
             'tanggal_lahir' => 'required|date',
             'stts_nikah' => 'nullable|in:BELUM MENIKAH,MENIKAH,JANDA,SINGLE',
             'alamat' => 'required|string',
+        ], [
+            'required' => 'Form harus dilengkapi.',
+            'unique' => 'Data yang sama telah digunakan.',
+            'in' => 'Data tidak termasuk dalam opsi yang tersedia.',
+            'date' => 'Format tanggal tidak valid.',
+            'nik.max' => 'NIK maksimal 40 karakter.',
+            'nip.max' => 'NIP maksimal 40 karakter.',
+            'npwp.max' => 'NPWP maksimal 40 karakter.',
+            'nama.max' => 'Nama maksimal 240 karakter.',
+            'tempat_lahir.max' => 'Tempat lahir maksimal 240 karakter.',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
@@ -60,7 +79,9 @@ class PegawaiController extends Controller
 
             return response()->json(['message' => 'Pegawai created successfully', 'data' => $pegawai], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -70,10 +91,22 @@ class PegawaiController extends Controller
     public function show(string $id)
     {
         try {
-            $pegawai = Pegawai::find($id);
-            return response()->json(['message' => 'Pegawai deleted successfully', 'data' => $pegawai], 200);
+            $pegawai = Pegawai::first($id);
+
+            if (!$pegawai) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $pegawai
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 404);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -92,14 +125,34 @@ class PegawaiController extends Controller
             'tanggal_lahir' => 'required|date',
             'stts_nikah' => 'nullable|in:BELUM MENIKAH,MENIKAH,JANDA,SINGLE',
             'alamat' => 'required|string',
+        ], [
+            'required' => 'Form harus dilengkapi.',
+            'unique' => 'Data yang sama telah digunakan.',
+            'in' => 'Data tidak termasuk dalam opsi yang tersedia.',
+            'date' => 'Format tanggal tidak valid.',
+            'nik.max' => 'NIK maksimal 40 karakter.',
+            'nip.max' => 'NIP maksimal 40 karakter.',
+            'npwp.max' => 'NPWP maksimal 40 karakter.',
+            'nama.max' => 'Nama maksimal 240 karakter.',
+            'tempat_lahir.max' => 'Tempat lahir maksimal 240 karakter.',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
-            $pegawai = Pegawai::where('id', $id)->create([
+            $pegawai = Pegawai::where('id', $id)->first();
+
+            if (!$pegawai) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $pegawai->update([
                 'nik' => $request->nik,
                 'npwp' => $request->npwp,
                 'nip' => $request->nip,
@@ -111,9 +164,14 @@ class PegawaiController extends Controller
                 'alamat' => $request->alamat,
             ]);
 
-            return response()->json(['message' => 'Pegawai created successfully', 'data' => $pegawai], 201);
+            return response()->json([
+                'message' => 'Pegawai Edit successfully',
+                'data' => $pegawai
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -124,10 +182,44 @@ class PegawaiController extends Controller
     {
         try {
             $pegawai = Pegawai::find($id);
+
+            if (!$pegawai) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
             $pegawai->delete();
-            return response()->json(['message' => 'Pegawai deleted successfully', 'data' => null], 200);
+            return response()->json([
+                'message' => 'Pegawai deleted successfully'
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 404);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $pegawai = Pegawai::onlyTrashed()->find($id);
+
+            if (!$pegawai) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan dalam sampah'
+                ], 404);
+            }
+
+            $pegawai->restore();
+
+            return response()->json([
+                'message' => 'Data berhasil dikembalikan'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 }

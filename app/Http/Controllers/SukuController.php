@@ -13,13 +13,19 @@ class SukuController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        if (empty($search)) {
-            $suku = Suku::all();
-        } else {
-            $suku = Suku::where('suku', 'like', "%$search%")->get();
+        try {
+            $search = $request->query('search');
+            if (empty($search)) {
+                $suku = Suku::all();
+            } else {
+                $suku = Suku::where('suku', 'like', "%$search%")->get();
+            }
+            return response()->json(['data' => $suku], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-        return response()->json(['data' => $suku], 200);
     }
 
     /**
@@ -29,10 +35,17 @@ class SukuController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'suku' => 'required|string|max:120|unique:suku,suku',
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
@@ -42,7 +55,9 @@ class SukuController extends Controller
 
             return response()->json(['message' => 'Suku created successfully', 'data' => $suku], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -53,20 +68,40 @@ class SukuController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'suku' => 'required|string|max:120|unique:suku,suku,' . $id,
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
-            $suku = Suku::where('id', $id)->update([
+            $suku = Suku::where('id', $id)->first();
+
+            if (!$suku) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $suku->update([
                 'suku' => $request->suku
             ]);
 
-            return response()->json(['message' => 'Suku Edited successfully', 'data' => $suku], 201);
+            return response()->json([
+                'message' => 'Suku Edited successfully',
+                'data' => $suku
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -77,10 +112,42 @@ class SukuController extends Controller
     {
         try {
             $suku = Suku::find($id);
+
+            if (!$suku) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
             $suku->delete();
             return response()->json(['message' => 'suku deleted successfully', 'data' => null], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 404);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $suku = Suku::onlyTrashed()->find($id);
+
+            if (!$suku) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan dalam sampah'
+                ], 404);
+            }
+
+            $suku->restore();
+
+            return response()->json([
+                'message' => 'Data berhasil dikembalikan'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 }

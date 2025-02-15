@@ -45,7 +45,7 @@ class KeluargaController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
@@ -81,15 +81,26 @@ class KeluargaController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
-            $keluarga = Keluarga::where('id', $id)->update([
+            $keluarga = Keluarga::where('id', $id)->first();
+
+            if (!$keluarga) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $keluarga->update([
                 'keluarga' => $request->keluarga
             ]);
 
-            return response()->json(['message' => 'Keluarga Edited successfully', 'data' => $keluarga], 200);
+            return response()->json([
+                'message' => 'Keluarga Edited successfully',
+                'data' => $keluarga
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()

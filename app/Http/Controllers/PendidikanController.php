@@ -13,13 +13,19 @@ class PendidikanController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        if (empty($search)) {
-            $pendidikan = Pendidikan::all();
-        } else {
-            $pendidikan = Pendidikan::where('jenjang_pendidikan', 'like', "%$search%")->get();
+        try {
+            $search = $request->query('search');
+            if (empty($search)) {
+                $pendidikan = Pendidikan::all();
+            } else {
+                $pendidikan = Pendidikan::where('jenjang_pendidikan', 'like', "%$search%")->get();
+            }
+            return response()->json(['data' => $pendidikan], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-        return response()->json(['data' => $pendidikan], 200);
     }
 
     /**
@@ -29,10 +35,17 @@ class PendidikanController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'pendidikan' => 'required|string|max:120|unique:pendidikan,jenjang_pendidikan',
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
@@ -42,7 +55,9 @@ class PendidikanController extends Controller
 
             return response()->json(['message' => 'Pendidikan created successfully', 'data' => $pendidikan], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -53,20 +68,40 @@ class PendidikanController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'pendidikan' => 'required|string|max:120|unique:pendidikan,jenjang_pendidikan,' . $id,
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
-            $pendidikan = Pendidikan::where('id', $id)->update([
+            $pendidikan = Pendidikan::where('id', $id)->first();
+
+            if (!$pendidikan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $pendidikan->update([
                 'jenjang_pendidikan' => $request->pendidikan
             ]);
 
-            return response()->json(['message' => 'Pendidikan Edited successfully', 'data' => $pendidikan], 201);
+            return response()->json([
+                'message' => 'Pendidikan Edited successfully',
+                'data' => $pendidikan
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Spesialis;
+use App\Http\Controllers\Controller;
+use App\Models\Bangsal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class SpesialisController extends Controller
+class BangsalController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,11 +17,11 @@ class SpesialisController extends Controller
         try {
             $search = $request->query('search');
             if (empty($search)) {
-                $spesialis = Spesialis::all();
+                $bangsal = Bangsal::all();
             } else {
-                $spesialis = Spesialis::where('spesialis', 'like', "%$search%")->get();
+                $bangsal = Bangsal::where('bangsal', 'like', "%$search%")->get();
             }
-            return response()->json(['data' => $spesialis], 200);
+            return response()->json(['data' => $bangsal], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()
@@ -34,7 +35,7 @@ class SpesialisController extends Controller
     public function store(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'spesialis' => 'required|string|max:120|unique:spesialis,spesialis',
+            'bangsal' => 'required|string|max:120|unique:bangsal,bangsal',
         ], [
             'required' => 'Form harus dilengkapi',
             'string' => 'Tipe data tidak valid',
@@ -49,11 +50,14 @@ class SpesialisController extends Controller
         }
 
         try {
-            $spesialis = Spesialis::create([
-                'spesialis' => $request->spesialis
+            $bangsal = Bangsal::create([
+                'bangsal' => $request->bangsal
             ]);
 
-            return response()->json(['message' => 'Spesialis created successfully', 'data' => $spesialis], 201);
+            return response()->json([
+                'message' => 'Bangsal created successfully',
+                'data' => $bangsal
+            ], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()
@@ -67,7 +71,7 @@ class SpesialisController extends Controller
     public function update(Request $request, string $id)
     {
         $validate = Validator::make($request->all(), [
-            'spesialis' => 'required|string|max:120|unique:spesialis,spesialis,' . $id,
+            'bangsal' => 'required|string|max:120|unique:bangsal,bangsal,' . $id,
         ], [
             'required' => 'Form harus dilengkapi',
             'string' => 'Tipe data tidak valid',
@@ -82,21 +86,21 @@ class SpesialisController extends Controller
         }
 
         try {
-            $spesialis = spesialis::where('id', $id)->first();
+            $bangsal = Bangsal::where('id', $id)->first();
 
-            if (!$spesialis) {
+            if (!$bangsal) {
                 return response()->json([
                     'message' => 'Data tidak ditemukan'
                 ], 404);
             }
 
-            $spesialis->update([
-                'spesialis' => $request->spesialis
+            $bangsal->update([
+                'bangsal' => $request->bangsal
             ]);
 
             return response()->json([
-                'message' => 'Spesialis Edited successfully',
-                'data' => $spesialis
+                'message' => 'Bangsal Edited successfully',
+                'data' => $bangsal
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -111,45 +115,39 @@ class SpesialisController extends Controller
     public function destroy(string $id)
     {
         try {
-            $spesialis = Spesialis::find($id);
+            $bangsal = Bangsal::find($id);
 
-            if (!$spesialis) {
+            if (!$bangsal) {
                 return response()->json([
                     'message' => 'Data tidak ditemukan'
                 ], 404);
             }
 
-            $spesialis->delete();
-            return response()->json([
-                'message' => 'Spesialis deleted successfully'
-            ], 200);
+            $bangsal->delete();
+            return response()->json(['message' => 'Bangsal deleted successfully', 'data' => null], 200);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
-            ], 500);
+            return response()->json(['message' => 'Terjadi kesalahan server ' . $th->getMessage()], 500);
         }
     }
 
     public function restore($id)
     {
         try {
-            $spesialis = Spesialis::onlyTrashed()->find($id);
+            $bangsal = Bangsal::onlyTrashed()->find($id);
 
-            if (!$spesialis) {
+            if (!$bangsal) {
                 return response()->json([
                     'message' => 'Data tidak ditemukan dalam sampah'
                 ], 404);
             }
 
-            $spesialis->restore();
+            $bangsal->restore();
 
             return response()->json([
-                'message' => 'Data berhasil dikembalikan'
+                'message' => 'Data bangsal berhasil dikembalikan'
             ], 200);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
-            ], 500);
+            return response()->json(['message' => 'Terjadi kesalahan server ' . $th->getMessage()], 500);
         }
     }
 }

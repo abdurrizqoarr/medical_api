@@ -45,7 +45,7 @@ class KecamatanController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
@@ -81,18 +81,26 @@ class KecamatanController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
-            $kecamatan = Kecamatan::where('id', $id)->update([
+            $kecamatan = Kecamatan::where('id', $id)->first();
+
+            if (!$kecamatan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $kecamatan->update([
                 'kecamatan' => $request->kecamatan
             ]);
 
             return response()->json([
                 'message' => 'Kecamatan Edited successfully',
                 'data' => $kecamatan
-            ], 201);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()

@@ -7,15 +7,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Dokter extends Model
+class JenisTindakanRanap extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
-    protected $table = 'dokter';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $fillable = ['izin_praktek', 'spesialis', 'pegawai'];
+    protected $fillable = [
+        'nama_perawatan',
+        'total_tarif',
+        'bhp',
+        'kso',
+        'manajemen',
+        'material',
+        'tarif_dokter',
+        'tarif_perawat',
+    ];
+    protected $table = 'jenis_tindakan_ranap';
 
     protected $dates = ['deleted_at'];
 }

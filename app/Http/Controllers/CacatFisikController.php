@@ -43,7 +43,9 @@ class CacatFisikController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
@@ -76,18 +78,26 @@ class CacatFisikController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
-            $cacatFisik = CacatFisik::where('id', $id)->update([
+            $cacatFisik = CacatFisik::where('id', $id)->first();
+
+            if (!$cacatFisik) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $cacatFisik->update([
                 'cacat_fisik' => $request->cacat_fisik
             ]);
 
             return response()->json([
                 'message' => 'Cacat Fisik Edited successfully',
                 'data' => $cacatFisik
-            ], 201);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()

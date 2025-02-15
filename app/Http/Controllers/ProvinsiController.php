@@ -13,13 +13,19 @@ class ProvinsiController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        if (empty($search)) {
-            $provinsi = Provinsi::all();
-        } else {
-            $provinsi = Provinsi::where('provinsi', 'like', "%$search%")->get();
+        try {
+            $search = $request->query('search');
+            if (empty($search)) {
+                $provinsi = Provinsi::all();
+            } else {
+                $provinsi = Provinsi::where('provinsi', 'like', "%$search%")->get();
+            }
+            return response()->json(['data' => $provinsi], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-        return response()->json(['data' => $provinsi], 200);
     }
 
     /**
@@ -29,10 +35,17 @@ class ProvinsiController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'provinsi' => 'required|string|max:120|unique:provinsi,provinsi',
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
@@ -40,9 +53,14 @@ class ProvinsiController extends Controller
                 'provinsi' => $request->provinsi
             ]);
 
-            return response()->json(['message' => 'Provinsi created successfully', 'data' => $provinsi], 201);
+            return response()->json([
+                'message' => 'Provinsi created successfully',
+                'data' => $provinsi
+            ], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -53,20 +71,40 @@ class ProvinsiController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'provinsi' => 'required|string|max:120|unique:provinsi,provinsi,' . $id,
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
-            $provinsi = Provinsi::where('id', $id)->update([
+            $provinsi = Provinsi::where('id', $id)->first();
+
+            if (!$provinsi) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $provinsi->update([
                 'provinsi' => $request->provinsi
             ]);
 
-            return response()->json(['message' => 'Provinsi Edited successfully', 'data' => $provinsi], 201);
+            return response()->json([
+                'message' => 'Provinsi Edited successfully',
+                'data' => $provinsi
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 

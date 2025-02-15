@@ -13,17 +13,19 @@ return new class extends Migration
     {
         Schema::create('registrasi', function (Blueprint $table) {
             $table->string("no_rawat", 20)->primary();
-            $table->time("waktu_registrasi");
+            $table->timestamp("waktu_registrasi");
             $table->integer("antrian_poli");
             $table->enum("status_periksa", ['Belum', 'Sudah', 'Batal', 'Berkas Diterima', 'Dirujuk', 'Meninggal'])->default('belum');
             $table->boolean("status_bayar")->default(false);
             $table->enum('status_rawat', ['RALAN', 'RANAP'])->default('RALAN');
             $table->uuid("poli");
             $table->uuid("dokter");
+            $table->uuid("jaminan");
             $table->string("pasien");
 
             $table->foreign('poli')->references('id')->on('poli');
             $table->foreign('dokter')->references('id')->on('dokter');
+            $table->foreign('jaminan')->references('id')->on('jaminan');
             $table->foreign('pasien')->references('no_rm')->on('pasien');
             $table->timestamps();
         });

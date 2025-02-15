@@ -2,101 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Spesialis;
+use App\Http\Controllers\Controller;
+use App\Models\Bed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class SpesialisController extends Controller
+class BedController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         try {
             $search = $request->query('search');
-            if (empty($search)) {
-                $spesialis = Spesialis::all();
-            } else {
-                $spesialis = Spesialis::where('spesialis', 'like', "%$search%")->get();
-            }
-            return response()->json(['data' => $spesialis], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
-            ], 500);
-        }
-    }
+            $bangsalFilter = $request->query('bangsal');
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validate = Validator::make($request->all(), [
-            'spesialis' => 'required|string|max:120|unique:spesialis,spesialis',
-        ], [
-            'required' => 'Form harus dilengkapi',
-            'string' => 'Tipe data tidak valid',
-            'max' => 'Maksimal 120 karakter',
-            'unique' => 'Data yang sama telah disimpan',
-        ]);
+            $query = Bed::query();
 
-        if ($validate->fails()) {
-            return response()->json([
-                'message' => $validate->errors()->all()
-            ], 422);
-        }
-
-        try {
-            $spesialis = Spesialis::create([
-                'spesialis' => $request->spesialis
-            ]);
-
-            return response()->json(['message' => 'Spesialis created successfully', 'data' => $spesialis], 201);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $validate = Validator::make($request->all(), [
-            'spesialis' => 'required|string|max:120|unique:spesialis,spesialis,' . $id,
-        ], [
-            'required' => 'Form harus dilengkapi',
-            'string' => 'Tipe data tidak valid',
-            'max' => 'Maksimal 120 karakter',
-            'unique' => 'Data yang sama telah disimpan',
-        ]);
-
-        if ($validate->fails()) {
-            return response()->json([
-                'message' => $validate->errors()->all()
-            ], 422);
-        }
-
-        try {
-            $spesialis = spesialis::where('id', $id)->first();
-
-            if (!$spesialis) {
-                return response()->json([
-                    'message' => 'Data tidak ditemukan'
-                ], 404);
+            if ($search) {
+                $query->where('bed', 'like', "%$search%");
             }
 
-            $spesialis->update([
-                'spesialis' => $request->spesialis
-            ]);
+            if ($bangsalFilter) {
+                $query->where('bangsal', $bangsalFilter);
+            }
+
+            // Pagination
+            $bed = $query->orderBy('bangsal')->paginate(20);
 
             return response()->json([
-                'message' => 'Spesialis Edited successfully',
-                'data' => $spesialis
+                'data' => $bed
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -105,23 +38,88 @@ class SpesialisController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function store(Request $request)
     {
-        try {
-            $spesialis = Spesialis::find($id);
+        $validate = Validator::make($request->all(), [
+            'bed' => 'required|string|max:200|unique:bed,bed',
+            'bangsal' => 'required|string|exists:bangsal,id',
+        ]);
 
-            if (!$spesialis) {
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
+        }
+
+        try {
+            $bed = Bed::create([
+                'bed' => $request->bed,
+                'bangsal' => $request->bangsal,
+            ]);
+
+            return response()->json([
+                'message' => 'Bed created successfully',
+                'data' => $bed
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validate = Validator::make($request->all(), [
+            'bed' => 'required|string|max:200|unique:bed,bed' . $id,
+            'bangsal' => 'required|string|exists:bangsal,id',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
+        }
+
+        try {
+            $bed = Bed::where('id', $id)->first();
+
+            if (!$bed) {
                 return response()->json([
                     'message' => 'Data tidak ditemukan'
                 ], 404);
             }
 
-            $spesialis->delete();
+            $bed->update([
+                'bed' => $request->bed,
+                'bangsal' => $request->bangsal,
+            ]);
+
             return response()->json([
-                'message' => 'Spesialis deleted successfully'
+                'message' => 'Bed edit successfully',
+                'data' => $bed
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy(string $id)
+    {
+        try {
+            $bed = Bed::find($id);
+
+            if (!$bed) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $bed->delete();
+            return response()->json([
+                'message' => 'Bed deleted successfully'
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -133,15 +131,15 @@ class SpesialisController extends Controller
     public function restore($id)
     {
         try {
-            $spesialis = Spesialis::onlyTrashed()->find($id);
+            $bed = Bed::onlyTrashed()->find($id);
 
-            if (!$spesialis) {
+            if (!$bed) {
                 return response()->json([
                     'message' => 'Data tidak ditemukan dalam sampah'
                 ], 404);
             }
 
-            $spesialis->restore();
+            $bed->restore();
 
             return response()->json([
                 'message' => 'Data berhasil dikembalikan'

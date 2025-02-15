@@ -45,7 +45,7 @@ class KelurahanController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
@@ -53,7 +53,10 @@ class KelurahanController extends Controller
                 'kelurahan' => $request->kelurahan
             ]);
 
-            return response()->json(['message' => 'Kelurahan created successfully', 'data' => $kelurahan], 201);
+            return response()->json([
+                'message' => 'Kelurahan created successfully',
+                'data' => $kelurahan
+            ], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()
@@ -78,15 +81,26 @@ class KelurahanController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
-            $kelurahan = Kelurahan::where('id', $id)->update([
+            $kelurahan = Kelurahan::where('id', $id)->first();
+
+            if (!$kelurahan) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $kelurahan->update([
                 'kelurahan' => $request->kelurahan
             ]);
 
-            return response()->json(['message' => 'Kelurahan Edited successfully', 'data' => $kelurahan], 20);
+            return response()->json([
+                'message' => 'Kelurahan Edited successfully',
+                'data' => $kelurahan
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()

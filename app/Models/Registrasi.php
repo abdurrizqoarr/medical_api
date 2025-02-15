@@ -20,9 +20,25 @@ class Registrasi extends Model
         'antrian_poli',
         'status_periksa',
         'status_rawat',
+        'jaminan',
         'status_bayar',
         'poli',
         'dokter',
         'pasien',
     ];
+
+    public function pasienData()
+    {
+        return $this->belongsTo(Pasien::class, 'pasien', 'no_rm');
+    }
+
+    public function poliData()
+    {
+        return $this->belongsTo(Poli::class, 'poli', 'id');
+    }
+
+    public function dokterData()
+    {
+        return $this->belongsTo(Dokter::class, 'dokter', 'id');
+    }
 }

@@ -13,13 +13,19 @@ class PoliController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        if (empty($search)) {
-            $poli = Poli::all();
-        } else {
-            $poli = Poli::where('poli', 'like', "%$search%")->get();
+        try {
+            $search = $request->query('search');
+            if (empty($search)) {
+                $poli = Poli::all();
+            } else {
+                $poli = Poli::where('poli', 'like', "%$search%")->get();
+            }
+            return response()->json(['data' => $poli], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-        return response()->json(['data' => $poli], 200);
     }
 
     /**
@@ -29,10 +35,17 @@ class PoliController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'poli' => 'required|string|max:120|unique:poli,poli',
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
@@ -42,7 +55,9 @@ class PoliController extends Controller
 
             return response()->json(['message' => 'Poli created successfully', 'data' => $poli], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -53,20 +68,40 @@ class PoliController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'poli' => 'required|string|max:120|unique:poli,poli,' . $id,
+        ], [
+            'required' => 'Form harus dilengkapi',
+            'string' => 'Tipe data tidak valid',
+            'max' => 'Maksimal 120 karakter',
+            'unique' => 'Data yang sama telah disimpan',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
-            $poli = Poli::where('id', $id)->update([
+            $poli = Poli::where('id', $id)->first();
+
+            if (!$poli) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $poli->update([
                 'poli' => $request->poli
             ]);
 
-            return response()->json(['message' => 'Poli Edited successfully', 'data' => $poli], 201);
+            return response()->json([
+                'message' => 'Poli Edited successfully',
+                'data' => $poli
+            ], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 

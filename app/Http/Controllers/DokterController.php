@@ -13,22 +13,28 @@ class DokterController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        $spesialisFilter = $request->query('spesialis');
+        try {
+            $search = $request->query('search');
+            $spesialisFilter = $request->query('spesialis');
 
-        $query = Dokter::query();
+            $query = Dokter::query();
 
-        if ($search) {
-            $query->where('nama', 'like', "%$search%");
+            if ($search) {
+                $query->where('nama', 'like', "%$search%");
+            }
+
+            if ($spesialisFilter) {
+                $query->where('spesialis', $spesialisFilter);
+            }
+
+            $dokter = $query->get();
+
+            return response()->json(['data' => $dokter], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
-
-        if ($spesialisFilter) {
-            $query->where('spesialis', $spesialisFilter);
-        }
-
-        $dokter = $query->get();
-
-        return response()->json(['data' => $dokter], 200);
     }
 
     /**
@@ -37,19 +43,19 @@ class DokterController extends Controller
     public function store(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'nama' => 'required|string|max:240',
-            'izin_praktek' => 'nullable|string|max:60',
-            'spesialis' => 'required|string|max:40|exists:spesialis,spesialis',
-            'pegawai' => 'required|string|max:240',
+            'izin_praktek' => 'nullable|string|max:100',
+            'spesialis' => 'required|string|exists:spesialis,id',
+            'pegawai' => 'required|string|exists:pegawai,id',
         ]);
 
         if ($validate->fails()) {
-            return response()->json(['data' => null, 'message' => $validate->errors()->all()], 400);
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
         }
 
         try {
             $dokter = Dokter::create([
-                'nama' => $request->nama,
                 'izin_praktek' => $request->izin_praktek,
                 'spesialis' => $request->spesialis,
                 'pegawai' => $request->pegawai,
@@ -57,7 +63,9 @@ class DokterController extends Controller
 
             return response()->json(['message' => 'Dokter created successfully', 'data' => $dokter], 201);
         } catch (\Throwable $th) {
-            return response()->json(['data' => null, 'message' => $th->getMessage()], 400);
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -66,7 +74,21 @@ class DokterController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $dokter = Dokter::first($id);
+
+            if (!$dokter) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->json(['message' => 'Success', 'data' => $dokter], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -74,7 +96,42 @@ class DokterController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validate = Validator::make($request->all(), [
+            'izin_praktek' => 'nullable|string|max:100',
+            'spesialis' => 'required|string|exists:spesialis,id',
+            'pegawai' => 'required|string|exists:pegawai,id',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => $validate->errors()->all()
+            ], 422);
+        }
+
+        try {
+            $dokter = Dokter::where('id', $id)->first();
+
+            if (!$dokter) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $dokter->update([
+                'izin_praktek' => $request->izin_praktek,
+                'spesialis' => $request->spesialis,
+                'pegawai' => $request->pegawai,
+            ]);
+
+            return response()->json([
+                'message' => 'Dokter update successfully',
+                'data' => $dokter
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -82,6 +139,23 @@ class DokterController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $dokter = Dokter::find($id);
+
+            if (!$dokter) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $dokter->delete();
+            return response()->json([
+                'message' => 'Dokter deleted successfully'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
     }
 }

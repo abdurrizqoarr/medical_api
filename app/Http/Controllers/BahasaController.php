@@ -45,7 +45,7 @@ class BahasaController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
@@ -81,18 +81,26 @@ class BahasaController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'message' => $validate->errors()->all()
-            ], 400);
+            ], 422);
         }
 
         try {
-            $bahasa = Bahasa::where('id', $id)->update([
+            $bahasa = Bahasa::where('id', $id)->first();
+
+            if (!$bahasa) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $bahasa->update([
                 'bahasa' => $request->bahasa
             ]);
 
             return response()->json([
                 'message' => 'Bahasa Edited successfully',
                 'data' => $bahasa
-            ], 201);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()
