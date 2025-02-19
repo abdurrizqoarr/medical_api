@@ -124,7 +124,7 @@ class BangsalController extends Controller
             }
 
             $bangsal->delete();
-            return response()->json(['message' => 'Bangsal deleted successfully', 'data' => null], 200);
+            return response()->json(['message' => 'Bangsal deleted successfully'], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Terjadi kesalahan server ' . $th->getMessage()], 500);
         }

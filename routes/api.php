@@ -1,10 +1,19 @@
 <?php
 
 use App\Http\Controllers\BahasaController;
+use App\Http\Controllers\BangsalController;
+use App\Http\Controllers\BedController;
 use App\Http\Controllers\CacatFisikController;
+use App\Http\Controllers\DepoController;
 use App\Http\Controllers\DokterController;
+use App\Http\Controllers\GolonganController;
 use App\Http\Controllers\JaminanController;
+use App\Http\Controllers\JenisController;
+use App\Http\Controllers\JenisTindakanLabController;
+use App\Http\Controllers\JenisTindakanRalanController;
+use App\Http\Controllers\JenisTindakanRanapController;
 use App\Http\Controllers\KabupatenController;
+use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\KecamatanController;
 use App\Http\Controllers\KeluargaController;
 use App\Http\Controllers\KelurahanController;
@@ -12,8 +21,9 @@ use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PendidikanController;
 use App\Http\Controllers\RegistrasiController;
+use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -78,6 +88,54 @@ route::put('/kelurahan/{id}', [KelurahanController::class, 'update']);
 route::delete('/kelurahan/{id}', [KelurahanController::class, 'destroy']);
 route::get('/kelurahan-restore/{id}', [KelurahanController::class, 'restore']);
 
+route::get('/bangsal', [BangsalController::class, 'index']);
+route::post('/bangsal', [BangsalController::class, 'store']);
+route::put('/bangsal/{id}', [BangsalController::class, 'update']);
+route::delete('/bangsal/{id}', [BangsalController::class, 'destroy']);
+route::get('/bangsal-restore/{id}', [BangsalController::class, 'restore']);
+
+route::get('/bed', [BedController::class, 'index']);
+route::post('/bed', [BedController::class, 'store']);
+route::put('/bed/{id}', [BedController::class, 'update']);
+route::delete('/bed/{id}', [BedController::class, 'destroy']);
+route::get('/bed-restore/{id}', [BedController::class, 'restore']);
+
+route::get('/depo', [DepoController::class, 'index']);
+route::post('/depo', [DepoController::class, 'store']); 
+route::put('/depo/{id}', [DepoController::class, 'update']);
+route::delete('/depo/{id}', [DepoController::class, 'destroy']);
+route::get('/depo-restore/{id}', [DepoController::class, 'restore']);
+
+route::get('/golongan', [GolonganController::class, 'index']);
+route::post('/golongan', [GolonganController::class, 'store']); 
+route::put('/golongan/{id}', [GolonganController::class, 'update']);
+route::delete('/golongan/{id}', [GolonganController::class, 'destroy']);
+route::get('/golongan-restore/{id}', [GolonganController::class, 'restore']);
+
+route::get('/jenis', [JenisController::class, 'index']);
+route::post('/jenis', [JenisController::class, 'store']); 
+route::put('/jenis/{id}', [JenisController::class, 'update']);
+route::delete('/jenis/{id}', [JenisController::class, 'destroy']);
+route::get('/jenis-restore/{id}', [JenisController::class, 'restore']);
+
+route::get('/kategori', [KategoriController::class, 'index']);
+route::post('/kategori', [KategoriController::class, 'store']); 
+route::put('/kategori/{id}', [KategoriController::class, 'update']);
+route::delete('/kategori/{id}', [KategoriController::class, 'destroy']);
+route::get('/kategori-restore/{id}', [KategoriController::class, 'restore']);
+
+route::get('/satuan', [SatuanController::class, 'index']);
+route::post('/satuan', [SatuanController::class, 'store']); 
+route::put('/satuan/{id}', [SatuanController::class, 'update']);
+route::delete('/satuan/{id}', [SatuanController::class, 'destroy']);
+route::get('/satuan-restore/{id}', [SatuanController::class, 'restore']);
+
+route::get('/supplier', [SupplierController::class, 'index']);
+route::post('/supplier', [SupplierController::class, 'store']); 
+route::put('/supplier/{id}', [SupplierController::class, 'update']);
+route::delete('/supplier/{id}', [SupplierController::class, 'destroy']);
+route::get('/supplier-restore/{id}', [SupplierController::class, 'restore']);
+
 route::get('/pasien', [PasienController::class, 'index']);
 route::post('/pasien', [PasienController::class, 'store']);
 route::get('/pasien/{id}', [PasienController::class, 'show']);
@@ -101,3 +159,21 @@ route::post('/registrasi', [RegistrasiController::class, 'store']);
 route::get('/registrasi/{id}', [RegistrasiController::class, 'show']);
 route::put('/registrasi/{id}', [RegistrasiController::class, 'update']);
 route::delete('/registrasi/{id}', [RegistrasiController::class, 'destroy']);
+
+route::get('/jenis-tindakan-ralan', [JenisTindakanRalanController::class, 'index']);
+route::post('/jenis-tindakan-ralan', [JenisTindakanRalanController::class, 'store']);
+route::put('/jenis-tindakan-ralan/{id}', [JenisTindakanRalanController::class, 'update']);
+route::delete('/jenis-tindakan-ralan/{id}', [JenisTindakanRalanController::class, 'destroy']);
+route::get('/jenis-tindakan-ralan-restore/{id}', [JenisTindakanRalanController::class, 'restore']);
+
+route::get('/jenis-tindakan-ranap', [JenisTindakanRanapController::class, 'index']);
+route::post('/jenis-tindakan-ranap', [JenisTindakanRanapController::class, 'store']);
+route::put('/jenis-tindakan-ranap/{id}', [JenisTindakanRanapController::class, 'update']);
+route::delete('/jenis-tindakan-ranap/{id}', [JenisTindakanRanapController::class, 'destroy']);
+route::get('/jenis-tindakan-ranap-restore/{id}', [JenisTindakanRanapController::class, 'restore']);
+
+route::get('/jenis-tindakan-lab', [JenisTindakanLabController::class, 'index']);
+route::post('/jenis-tindakan-lab', [JenisTindakanLabController::class, 'store']);
+route::put('/jenis-tindakan-lab/{id}', [JenisTindakanLabController::class, 'update']);
+route::delete('/jenis-tindakan-lab/{id}', [JenisTindakanLabController::class, 'destroy']);
+route::get('/jenis-tindakan-lab-restore/{id}', [JenisTindakanLabController::class, 'restore']);

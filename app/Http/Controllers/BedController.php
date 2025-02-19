@@ -71,7 +71,7 @@ class BedController extends Controller
     public function update(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
-            'bed' => 'required|string|max:200|unique:bed,bed' . $id,
+            'bed' => 'required|string|max:200|unique:bed,bed,' . $id,
             'bangsal' => 'required|string|exists:bangsal,id',
         ]);
 
