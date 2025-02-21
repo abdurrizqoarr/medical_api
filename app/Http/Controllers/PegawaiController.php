@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,12 +17,12 @@ class PegawaiController extends Controller
         try {
             $search = $request->query('search');
             if (empty($search)) {
-                $pegawai = Pegawai::all();
+                $pegawai = Pegawai::paginate(10);
             } else {
                 $pegawai = Pegawai::where('nama', 'like', "%$search%")
                     ->orWhere('nik', 'like', "%$search%")
                     ->orWhere('nip', 'like', "%$search%")
-                    ->get();
+                    ->paginate(10);
             }
             return response()->json(['data' => $pegawai], 200);
         } catch (\Throwable $th) {
@@ -44,11 +45,17 @@ class PegawaiController extends Controller
             'jenis_kelamin' => 'required|in:PRIA,WANITA',
             'tempat_lahir' => 'required|string|max:240',
             'tanggal_lahir' => 'required|date',
-            'stts_nikah' => 'nullable|in:BELUM MENIKAH,MENIKAH,JANDA,SINGLE',
-            'alamat' => 'required|string',
+            'stts_nikah' => 'nullable|in:BELUM MENIKAH,MENIKAH,JANDA,DUDHA',
+            'alamat' => 'nullable|string',
         ], [
-            'required' => 'Form harus dilengkapi.',
-            'unique' => 'Data yang sama telah digunakan.',
+            'nik.required' => 'NIK harus dilengkapi.',
+            'nip.required' => 'NIP harus dilengkapi.',
+            'nama.required' => 'NAama harus dilengkapi.',
+            'jenis_kelamin.required' => 'Jenis Kelamin harus dilengkapi.',
+            'tempat_lahir.required' => 'Tempat Lahir harus dilengkapi.',
+            'tanggal_lahir.required' => 'Tanggal Lahir harus dilengkapi.',
+            'nik.unique' => 'NIK yang sama telah digunakan.',
+            'nip.unique' => 'NIP yang sama telah digunakan.',
             'in' => 'Data tidak termasuk dalam opsi yang tersedia.',
             'date' => 'Format tanggal tidak valid.',
             'nik.max' => 'NIK maksimal 40 karakter.',
@@ -72,7 +79,7 @@ class PegawaiController extends Controller
                 'nama' => $request->nama,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'tempat_lahir' => $request->tempat_lahir,
-                'tanggal_lahir' => $request->tanggal_lahir,
+                'tanggal_lahir' => Carbon::parse($request->tanggal_lahir)->format('Y-m-d'),
                 'stts_nikah' => $request->stts_nikah,
                 'alamat' => $request->alamat,
             ]);
@@ -123,11 +130,17 @@ class PegawaiController extends Controller
             'jenis_kelamin' => 'required|in:PRIA,WANITA',
             'tempat_lahir' => 'required|string|max:120',
             'tanggal_lahir' => 'required|date',
-            'stts_nikah' => 'nullable|in:BELUM MENIKAH,MENIKAH,JANDA,SINGLE',
+            'stts_nikah' => 'nullable|in:BELUM MENIKAH,MENIKAH,JANDA,DUDHA',
             'alamat' => 'required|string',
         ], [
-            'required' => 'Form harus dilengkapi.',
-            'unique' => 'Data yang sama telah digunakan.',
+            'nik.required' => 'NIK harus dilengkapi.',
+            'nip.required' => 'NIP harus dilengkapi.',
+            'nama.required' => 'NAama harus dilengkapi.',
+            'jenis_kelamin.required' => 'Jenis Kelamin harus dilengkapi.',
+            'tempat_lahir.required' => 'Tempat Lahir harus dilengkapi.',
+            'tanggal_lahir.required' => 'Tanggal Lahir harus dilengkapi.',
+            'nik.unique' => 'NIK yang sama telah digunakan.',
+            'nip.unique' => 'NIP yang sama telah digunakan.',
             'in' => 'Data tidak termasuk dalam opsi yang tersedia.',
             'date' => 'Format tanggal tidak valid.',
             'nik.max' => 'NIK maksimal 40 karakter.',
@@ -159,7 +172,7 @@ class PegawaiController extends Controller
                 'nama' => $request->nama,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'tempat_lahir' => $request->tempat_lahir,
-                'tanggal_lahir' => $request->tanggal_lahir,
+                'tanggal_lahir' => Carbon::parse($request->tanggal_lahir)->format('Y-m-d'),
                 'stts_nikah' => $request->stts_nikah,
                 'alamat' => $request->alamat,
             ]);

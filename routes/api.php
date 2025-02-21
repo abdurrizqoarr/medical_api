@@ -20,8 +20,11 @@ use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PendidikanController;
+use App\Http\Controllers\PoliController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\SpesialisController;
+use App\Http\Controllers\SukuController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -154,11 +157,29 @@ route::put('/pendidikan/{id}', [PendidikanController::class, 'update']);
 route::delete('/pendidikan/{id}', [PendidikanController::class, 'destroy']);
 route::get('/pendidikan-restore/{id}', [PendidikanController::class, 'restore']);
 
+route::get('/poli', [PoliController::class, 'index']);
+route::post('/poli', [PoliController::class, 'store']);
+route::put('/poli/{id}', [PoliController::class, 'update']);
+route::delete('/poli/{id}', [PoliController::class, 'destroy']);
+route::get('/poli-restore/{id}', [PoliController::class, 'restore']);
+
 route::get('/registrasi', [RegistrasiController::class, 'index']);
 route::post('/registrasi', [RegistrasiController::class, 'store']);
 route::get('/registrasi/{id}', [RegistrasiController::class, 'show']);
 route::put('/registrasi/{id}', [RegistrasiController::class, 'update']);
 route::delete('/registrasi/{id}', [RegistrasiController::class, 'destroy']);
+
+route::get('/spesialis', [SpesialisController::class, 'index']);
+route::post('/spesialis', [SpesialisController::class, 'store']);
+route::put('/spesialis/{id}', [SpesialisController::class, 'update']);
+route::delete('/spesialis/{id}', [SpesialisController::class, 'destroy']);
+route::get('/spesialis-restore/{id}', [SpesialisController::class, 'restore']);
+
+route::get('/suku', [SukuController::class, 'index']);
+route::post('/suku', [SukuController::class, 'store']);
+route::put('/suku/{id}', [SukuController::class, 'update']);
+route::delete('/suku/{id}', [SukuController::class, 'destroy']);
+route::get('/suku-restore/{id}', [SukuController::class, 'restore']);
 
 route::get('/jenis-tindakan-ralan', [JenisTindakanRalanController::class, 'index']);
 route::post('/jenis-tindakan-ralan', [JenisTindakanRalanController::class, 'store']);

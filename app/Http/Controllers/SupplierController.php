@@ -29,6 +29,14 @@ class SupplierController extends Controller
             'nama_suplier' => 'required|string|max:255',
             'no_kontak' => 'required|string|max:20',
             'alamat' => 'required|string|max:255',
+        ], [
+            'nama_suplier.required' => 'Nama Supplier harus diisi.',
+            'no_kontak.required' => 'Nomer Kontak harus diisi.',
+            'alamat.required' => 'alamat harus diisi.',
+            'string' => 'Tipe data tidak valid.',
+            'nama_suplier.max' => 'Nama Supplier maksimal 255 karakter.',
+            'no_kontak.max' => 'Nomer Kontak maksimal 20 karakter.',
+            'alamat.max' => 'Alamat maksimal 255 karakter.',
         ]);
 
         if ($validate->fails()) {
@@ -81,6 +89,14 @@ class SupplierController extends Controller
             'nama_suplier' => 'required|string|max:255',
             'no_kontak' => 'required|string|max:20',
             'alamat' => 'required|string|max:255',
+        ], [
+            'nama_suplier.required' => 'Nama Supplier harus diisi.',
+            'no_kontak.required' => 'Nomer Kontak harus diisi.',
+            'alamat.required' => 'alamat harus diisi.',
+            'string' => 'Tipe data tidak valid.',
+            'nama_suplier.max' => 'Nama Supplier maksimal 255 karakter.',
+            'no_kontak.max' => 'Nomer Kontak maksimal 20 karakter.',
+            'alamat.max' => 'Alamat maksimal 255 karakter.',
         ]);
 
         if ($validate->fails()) {

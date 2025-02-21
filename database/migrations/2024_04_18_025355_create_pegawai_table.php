@@ -20,8 +20,8 @@ return new class extends Migration
             $table->enum('jenis_kelamin', ['PRIA', 'WANITA']);
             $table->string('tempat_lahir', 120);
             $table->date('tanggal_lahir');
-            $table->enum('stts_nikah', ['BELUM MENIKAH', 'MENIKAH', 'JANDA', 'DUDHA'])->nullable();
-            $table->longText('alamat')->nullable();
+            $table->enum('stts_nikah', ['BELUM MENIKAH', 'MENIKAH', 'JANDA', 'DUDHA'])->nullable(true);
+            $table->longText('alamat')->nullable(true);
             $table->timestamps();
             $table->softDeletes();
         });
