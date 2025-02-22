@@ -15,10 +15,20 @@ class BedController extends Controller
             $search = $request->query('search');
             $bangsalFilter = $request->query('bangsal');
 
-            $query = Bed::query();
+            $query = Bed::query()
+                ->leftJoin('bangsal', 'bed.bangsal', '=', 'bangsal.id')
+                ->select([
+                    'bed.id',
+                    'bed.bed',
+                    'bed.bangsal as bangsal_id',
+                    'bangsal.bangsal',
+                ]);
 
             if ($search) {
-                $query->where('bed', 'like', "%$search%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('bed.bed', 'like', "%$search%")
+                        ->orWhere('bangsal.bangsal', 'like', "%$search%");
+                });
             }
 
             if ($bangsalFilter) {
@@ -26,7 +36,7 @@ class BedController extends Controller
             }
 
             // Pagination
-            $bed = $query->orderBy('bangsal')->paginate(20);
+            $bed = $query->orderBy('bangsal')->get();
 
             return response()->json([
                 'data' => $bed

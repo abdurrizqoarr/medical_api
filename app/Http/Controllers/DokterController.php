@@ -17,14 +17,30 @@ class DokterController extends Controller
             $search = $request->query('search');
             $spesialisFilter = $request->query('spesialis');
 
-            $query = Dokter::query();
+            $query = Dokter::query()
+                ->leftJoin('pegawai', 'dokter.pegawai', '=', 'pegawai.id')
+                ->leftJoin('spesialis', 'dokter.spesialis', '=', 'spesialis.id')
+                ->select([
+                    'dokter.id',
+                    'dokter.izin_praktek',
+                    'dokter.spesialis as spesialis_id',
+                    'spesialis.spesialis', // Ambil nama spesialis dari tabel spesialis
+                    'dokter.pegawai as pegawai_id',
+                    'pegawai.nama', // Ambil nama pegawai dari tabel pegawai
+                ]);
 
+            // **Pencarian**
             if ($search) {
-                $query->where('nama', 'like', "%$search%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('spesialis.spesialis', 'like', "%$search%")
+                        ->orWhere('pegawai.nama', 'like', "%$search%") // Cari berdasarkan nama pegawai
+                        ->orWhere('dokter.izin_praktek', 'like', "%$search%");
+                });
             }
 
+            // **Filter spesialis**
             if ($spesialisFilter) {
-                $query->where('spesialis', $spesialisFilter);
+                $query->where('dokter.spesialis', $spesialisFilter);
             }
 
             $dokter = $query->get();

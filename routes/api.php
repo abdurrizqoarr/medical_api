@@ -146,6 +146,7 @@ route::put('/pasien/{id}', [PasienController::class, 'update']);
 route::delete('/pasien/{id}', [PasienController::class, 'destroy']);
 
 route::get('/pegawai', [PegawaiController::class, 'index']);
+route::get('/pegawai-simple', [PegawaiController::class, 'getSimplePegawai']);
 route::post('/pegawai', [PegawaiController::class, 'store']);
 route::get('/pegawai/{id}', [PegawaiController::class, 'show']);
 route::put('/pegawai/{id}', [PegawaiController::class, 'update']);

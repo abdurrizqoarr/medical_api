@@ -32,6 +32,18 @@ class PegawaiController extends Controller
         }
     }
 
+    public function getSimplePegawai()
+    {
+        try {
+            $pegawai = Pegawai::select(['id', 'nik', 'nama'])->get();
+            return response()->json(['data' => $pegawai], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
