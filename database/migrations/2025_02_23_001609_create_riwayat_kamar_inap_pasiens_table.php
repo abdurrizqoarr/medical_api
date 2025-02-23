@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('akun_kas', function (Blueprint $table) {
-            $table->uuid("id")->primary();
-            $table->string("akun_kas", 200)->unique(true);
+        Schema::create('riwayat_kamar_inap_pasiens', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('akun_kas');
+        Schema::dropIfExists('riwayat_kamar_inap_pasiens');
     }
 };
