@@ -4,6 +4,7 @@ use App\Http\Controllers\BahasaController;
 use App\Http\Controllers\BangsalController;
 use App\Http\Controllers\BedController;
 use App\Http\Controllers\CacatFisikController;
+use App\Http\Controllers\DataBarangController;
 use App\Http\Controllers\DepoController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\GolonganController;
@@ -104,37 +105,37 @@ route::delete('/bed/{id}', [BedController::class, 'destroy']);
 route::get('/bed-restore/{id}', [BedController::class, 'restore']);
 
 route::get('/depo', [DepoController::class, 'index']);
-route::post('/depo', [DepoController::class, 'store']); 
+route::post('/depo', [DepoController::class, 'store']);
 route::put('/depo/{id}', [DepoController::class, 'update']);
 route::delete('/depo/{id}', [DepoController::class, 'destroy']);
 route::get('/depo-restore/{id}', [DepoController::class, 'restore']);
 
 route::get('/golongan', [GolonganController::class, 'index']);
-route::post('/golongan', [GolonganController::class, 'store']); 
+route::post('/golongan', [GolonganController::class, 'store']);
 route::put('/golongan/{id}', [GolonganController::class, 'update']);
 route::delete('/golongan/{id}', [GolonganController::class, 'destroy']);
 route::get('/golongan-restore/{id}', [GolonganController::class, 'restore']);
 
 route::get('/jenis', [JenisController::class, 'index']);
-route::post('/jenis', [JenisController::class, 'store']); 
+route::post('/jenis', [JenisController::class, 'store']);
 route::put('/jenis/{id}', [JenisController::class, 'update']);
 route::delete('/jenis/{id}', [JenisController::class, 'destroy']);
 route::get('/jenis-restore/{id}', [JenisController::class, 'restore']);
 
 route::get('/kategori', [KategoriController::class, 'index']);
-route::post('/kategori', [KategoriController::class, 'store']); 
+route::post('/kategori', [KategoriController::class, 'store']);
 route::put('/kategori/{id}', [KategoriController::class, 'update']);
 route::delete('/kategori/{id}', [KategoriController::class, 'destroy']);
 route::get('/kategori-restore/{id}', [KategoriController::class, 'restore']);
 
 route::get('/satuan', [SatuanController::class, 'index']);
-route::post('/satuan', [SatuanController::class, 'store']); 
+route::post('/satuan', [SatuanController::class, 'store']);
 route::put('/satuan/{id}', [SatuanController::class, 'update']);
 route::delete('/satuan/{id}', [SatuanController::class, 'destroy']);
 route::get('/satuan-restore/{id}', [SatuanController::class, 'restore']);
 
 route::get('/supplier', [SupplierController::class, 'index']);
-route::post('/supplier', [SupplierController::class, 'store']); 
+route::post('/supplier', [SupplierController::class, 'store']);
 route::put('/supplier/{id}', [SupplierController::class, 'update']);
 route::delete('/supplier/{id}', [SupplierController::class, 'destroy']);
 route::get('/supplier-restore/{id}', [SupplierController::class, 'restore']);
@@ -157,6 +158,13 @@ route::post('/pendidikan', [PendidikanController::class, 'store']);
 route::put('/pendidikan/{id}', [PendidikanController::class, 'update']);
 route::delete('/pendidikan/{id}', [PendidikanController::class, 'destroy']);
 route::get('/pendidikan-restore/{id}', [PendidikanController::class, 'restore']);
+
+route::get('/data-barang', [DataBarangController::class, 'index']);
+route::post('/data-barang', [DataBarangController::class, 'store']);
+route::put('/data-barang/{id}', [DataBarangController::class, 'update']);
+route::delete('/data-barang/{id}', [DataBarangController::class, 'destroy']);
+route::delete('/data-barang-trashed/{id}', [DataBarangController::class, 'trashed']);
+route::get('/data-barang-restore/{id}', [DataBarangController::class, 'restore']);
 
 route::get('/poli', [PoliController::class, 'index']);
 route::post('/poli', [PoliController::class, 'store']);

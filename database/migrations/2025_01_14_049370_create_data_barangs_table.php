@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('data_barang', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Kolom auto-increment primary key
             $table->string('nama_brng');
-            $table->uuid('satuan_besar');
-            $table->uuid('satuan_kecil');
+            $table->uuid('satuan');
             $table->integer('isi');
             $table->integer('kapasitas');
             $table->double('h_dasar')->default(0);
@@ -29,8 +28,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('satuan_besar')->references('id')->on('satuan')->onDelete('cascade');
-            $table->foreign('satuan_kecil')->references('id')->on('satuan')->onDelete('cascade');
+            $table->foreign('satuan')->references('id')->on('satuan')->onDelete('cascade');
             $table->foreign('jenis')->references('id')->on('jenis')->onDelete('cascade');
             $table->foreign('kategori')->references('id')->on('kategori')->onDelete('cascade');
             $table->foreign('golongan')->references('id')->on('golongan')->onDelete('cascade');
