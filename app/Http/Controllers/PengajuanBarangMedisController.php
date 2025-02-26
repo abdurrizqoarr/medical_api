@@ -35,7 +35,7 @@ class PengajuanBarangMedisController extends Controller
 
             foreach ($request->barang as $item) {
                 $subtotal = $item['jumlah'] * $item['harga_pesan'];
-                $pajak = ($item['presentase_pajak'] / 100) * $subtotal;
+                $pajak = ceil(($item['presentase_pajak'] / 100) * $subtotal); // Pajak dibulatkan ke atas
                 $totalItem = $subtotal + $pajak;
 
                 $totalSebelumPajak += $subtotal;
@@ -56,8 +56,11 @@ class PengajuanBarangMedisController extends Controller
             // Simpan ke tabel detail_pengajuan_barang_medis
             foreach ($request->barang as $item) {
                 $subtotal = $item['jumlah'] * $item['harga_pesan'];
-                $pajak = ($item['presentase_pajak'] / 100) * $subtotal;
+                $pajak = ceil(($item['presentase_pajak'] / 100) * $subtotal); // Pajak dibulatkan ke atas
                 $totalItem = $subtotal + $pajak;
+
+                $totalSebelumPajak += $subtotal;
+                $totalSetelahPajak += $totalItem;
 
                 DetailPengajuanBarangMedis::create([
                     'no_pegajuan' => $noPengajuan,
@@ -104,7 +107,7 @@ class PengajuanBarangMedisController extends Controller
             $pengajuan = PengajuanBarangMedis::where('no_pegajuan', $noPengajuan)->firstOrFail();
 
             // Jika status sudah "DITERIMA" atau "PURCHASE ORDER", tidak bisa diubah
-            if (in_array($pengajuan->status, ['PURCHASE ORDER', 'DITERIMA'])) {
+            if (in_array($pengajuan->status, ['PURCHASE ORDER', 'DITERIMA', 'DITOLAK'])) {
                 return response()->json([
                     'message' => 'Pengajuan tidak dapat diubah karena sudah diproses.'
                 ], 403);
@@ -119,7 +122,7 @@ class PengajuanBarangMedisController extends Controller
 
             foreach ($request->barang as $item) {
                 $subtotal = $item['jumlah'] * $item['harga_pesan'];
-                $pajak = ($item['presentase_pajak'] / 100) * $subtotal;
+                $pajak = ceil(($item['presentase_pajak'] / 100) * $subtotal);
                 $totalItem = $subtotal + $pajak;
 
                 $totalSebelumPajak += $subtotal;
@@ -160,6 +163,44 @@ class PengajuanBarangMedisController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             DB::rollBack();
+            return response()->json([
+                'message' => 'Terjadi kesalahan: ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateStatusPengajuan(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:PENGAJUAN,DITOLAK,PURCHASE ORDER,DITERIMA'
+        ]);
+
+        try {
+            $pengajuan = PengajuanBarangMedis::findOrFail($id);
+            $currentStatus = $pengajuan->status;
+            $newStatus = $request->status;
+
+            // Jika status sudah "DITERIMA" atau "DITOLAK", maka tidak bisa diubah
+            if (in_array($currentStatus, ['DITERIMA', 'DITOLAK'])) {
+                return response()->json(['error' => 'Status sudah final, tidak bisa diubah'], 422);
+            }
+
+            // Jika sudah PURCHASE ORDER, tidak bisa kembali ke PENGAJUAN atau DITOLAK
+            if ($currentStatus == 'PURCHASE ORDER' && in_array($newStatus, ['PENGAJUAN', 'DITOLAK'])) {
+                return response()->json(['error' => 'Status tidak dapat dikembalikan ke PENGAJUAN atau DITOLAK setelah PURCHASE ORDER'], 422);
+            }
+
+            // Logika perubahan status yang valid
+            if ($currentStatus == 'PENGAJUAN' && !in_array($newStatus, ['DITOLAK', 'PURCHASE ORDER'])) {
+                return response()->json(['error' => 'Status tidak valid dari PENGAJUAN'], 422);
+            }
+
+            // Update status
+            $pengajuan->status = $newStatus;
+            $pengajuan->save();
+
+            return response()->json(['message' => 'Status berhasil diperbarui', 'data' => $pengajuan]);
+        } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Terjadi kesalahan: ' . $th->getMessage()
             ], 500);

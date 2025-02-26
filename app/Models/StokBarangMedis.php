@@ -6,23 +6,17 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DetailPenerimaanBarangMedis extends Model
+class StokBarangMedis extends Model
 {
     use HasFactory, HasUuids;
 
+    protected $table = 'stok_barang_medis';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
-        'no_penerimaan',
+        'depo',
         'databarang',
-        'jumlah',
-        'harga_terima',
-        'presentase_diskon',
-        'total_harga_terima_sebelum_pajak',
-        'presentase_pajak',
-        'total_harga_pesan_setelah_pajak',
-        'status'
+        'jumlah_stok',
     ];
-    protected $table = 'detail_penerimaan_barang_medis';
 }

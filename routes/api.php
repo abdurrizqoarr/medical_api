@@ -21,6 +21,8 @@ use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PendidikanController;
+use App\Http\Controllers\PenerimaanBarangMedisController;
+use App\Http\Controllers\PengajuanBarangMedisController;
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\SatuanController;
@@ -165,6 +167,11 @@ route::put('/data-barang/{id}', [DataBarangController::class, 'update']);
 route::delete('/data-barang/{id}', [DataBarangController::class, 'destroy']);
 route::delete('/data-barang-trashed/{id}', [DataBarangController::class, 'trashed']);
 route::get('/data-barang-restore/{id}', [DataBarangController::class, 'restore']);
+
+route::post('/pengajuan-barang', [PengajuanBarangMedisController::class, 'createPengajuan']);
+route::put('/pengajuan-barang/{id}', [PengajuanBarangMedisController::class, 'updatePengajuan']);
+route::put('/pengajuan-barang-update-status/{id}', [PengajuanBarangMedisController::class, 'updateStatusPengajuan']);
+route::post('/penerimaan-barang/{id}', [PenerimaanBarangMedisController::class, 'terimaBarang']);
 
 route::get('/poli', [PoliController::class, 'index']);
 route::post('/poli', [PoliController::class, 'store']);

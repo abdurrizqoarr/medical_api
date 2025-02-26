@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('penerimaan_barang_medis', function (Blueprint $table) {
-            $table->string("no_penerimaan", 40)->primary();
-            $table->string("no_pegajuan", 40);
+            $table->string("no_penerimaan")->primary();
+            $table->string("no_pegajuan");
             $table->uuid("supplier");
             $table->uuid("depo_penerima");
             $table->uuid("pegawai_penerima");
@@ -21,14 +21,13 @@ return new class extends Migration
             $table->timestamp("tanggal_jatuh_tempo");
             $table->double("total_sebelum_pajak");
             $table->double("total_setelah_pajak");
-            $table->double("potongan_kumulatif")->default(0);
-            $table->double("total_akhir");
+            $table->string("rek_pebayaran")->nullable(true);
             $table->timestamps();
 
             $table->foreign('pegawai_penerima')->references('id')->on('pegawai');
             $table->foreign('supplier')->references('id')->on('supplier');
-            $table->foreign('supplier')->references('id')->on('supplier');
-            $table->foreign('no_pegajuan')->references('id')->on('pengajuan_barang_medis');
+            $table->foreign('depo_penerima')->references('id')->on('depo_obat');
+            $table->foreign('no_pegajuan')->references('no_pegajuan')->on('pengajuan_barang_medis');
         });
     }
 

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('detail_pengajuan_barang_medis', function (Blueprint $table) {
             $table->uuid("id")->primary();
-            $table->string("no_pegajuan", 40);
+            $table->string("no_pegajuan");
             $table->uuid("databarang");
             $table->integer("jumlah");
             $table->double("harga_pesan");
@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->timestamps();
             $table->foreign('databarang')->references('id')->on('data_barang');
-            $table->foreign('no_pegajuan')->references('id')->on('pengajuan_barang_medis');
+            $table->foreign('no_pegajuan')->references('no_pegajuan')->on('pengajuan_barang_medis');
         });
     }
 

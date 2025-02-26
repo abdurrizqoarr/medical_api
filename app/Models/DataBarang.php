@@ -16,9 +16,9 @@ class DataBarang extends Model
     protected $keyType = 'string';
     protected $fillable = [
         'nama_brng',
-        'satuan_besar',
-        'satuan_kecil',
+        'satuan',
         'isi',
+        'kapasitas',
         'h_dasar',
         'h_beli',
         'harga_karyawan',

@@ -13,20 +13,19 @@ return new class extends Migration
     {
         Schema::create('detail_penerimaan_barang_medis', function (Blueprint $table) {
             $table->uuid("id")->primary();
-            $table->string("no_penerimaan", 40);
+            $table->string("no_penerimaan");
             $table->uuid("databarang");
             $table->integer("jumlah");
             $table->double("harga_terima");
             $table->double("presentase_diskon")->default(0);
             $table->double("total_harga_terima_sebelum_pajak");
             $table->double("presentase_pajak")->default(0);
-            $table->double("total_harga_pesan_setelah_pajak");
-            $table->string("rek_pebayaran")->nullable(true);
+            $table->double("total_harga_terima_setelah_pajak");
             $table->enum("status", ['BELUM DIBAYAR', 'SUDAH DIBAYAR'])->default('BELUM DIBAYAR');
 
             $table->timestamps();
             $table->foreign('databarang')->references('id')->on('data_barang');
-            $table->foreign('no_penerimaan')->references('id')->on('penerimaan_barang_medis');
+            $table->foreign('no_penerimaan')->references('no_penerimaan')->on('penerimaan_barang_medis');
         });
     }
 

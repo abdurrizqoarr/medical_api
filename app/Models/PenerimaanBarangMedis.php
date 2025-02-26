@@ -15,6 +15,7 @@ class PenerimaanBarangMedis extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
+        'no_penerimaan',
         'no_pegajuan',
         'supplier',
         'depo_penerima',
@@ -23,7 +24,6 @@ class PenerimaanBarangMedis extends Model
         'tanggal_jatuh_tempo',
         'total_sebelum_pajak',
         'total_setelah_pajak',
-        'potongan_kumulatif',
-        'total_akhir'
+        'rek_pebayaran',
     ];
 }
