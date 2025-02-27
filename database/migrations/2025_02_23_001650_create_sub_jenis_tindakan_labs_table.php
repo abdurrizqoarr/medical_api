@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sub_jenis_tindakan_labs', function (Blueprint $table) {
-            $table->id();
+            $table->uuid("id")->primary();
+            $table->uuid("id_jenis_tindakan_lab");
+            $table->string("sub_nama_pemeriksaan");
+            $table->string("satuan");
+            $table->string("nilai_rujukan");
             $table->timestamps();
+
+            $table->foreign('id_jenis_tindakan_lab')->references('jenis_tindakan_lab')->on('bangsal');
         });
     }
 

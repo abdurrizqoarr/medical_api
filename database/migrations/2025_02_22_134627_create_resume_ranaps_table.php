@@ -11,9 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('resume_ranaps', function (Blueprint $table) {
-            $table->id();
+        Schema::create('resume_ranap', function (Blueprint $table) {
+            $table->uuid("id")->primary();
+            $table->string("no_rawat", 20);
+            $table->uuid("dokter_dpjb");
+            $table->timestamp("tanggal_masuk");
+            $table->timestamp("tanggal_keluar");
+            $table->timestamp("waktu_resume");
+            $table->enum("status_pulang", ['SEMBUH', 'MEMBAIK', 'KEADAAN KHUSUS', 'MENINGGAL'])->default('SEMBUH');
+            $table->text("keluhan_utama")->nullable(true);
+            $table->text("jalannya_penyakit_selama_perawatan")->nullable(true);
+            $table->text("pemeriksaan_radiologi")->nullable(true);
+            $table->text("pemeriksaan_laboratorium")->nullable(true);
+            $table->text("tindakan_operasi")->nullable(true);
+            $table->text("riwayat_obat")->nullable(true);
+            $table->text("riwayat_diet")->nullable(true);
+            $table->text("obat_pulang")->nullable(true);
+            $table->text("catatan")->nullable(true);
+            $table->text("diagnosa_utama")->nullable(true);
+            $table->text("diagnosa_sekunder")->nullable(true);
+            $table->text("prosedur_utama")->nullable(true);
+            $table->text("prosedur_sekunder")->nullable(true);
             $table->timestamps();
+            $table->foreign('no_rawat')->references('no_rawat')->on('registrasi');
+            $table->foreign('dokter_dpjb')->references('id')->on('pegawai');
         });
     }
 

@@ -11,8 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jenis_tindakan_radiologis', function (Blueprint $table) {
-            $table->id();
+        Schema::create('jenis_tindakan_radiologi', function (Blueprint $table) {
+            $table->uuid("id")->primary();
+            $table->string("nama_perawatan");
+            $table->double("total_tarif")->default(0);
+            $table->double("bhp")->default(0);
+            $table->double("kso")->default(0);
+            $table->double("manajemen")->default(0);
+            $table->double("bagian_rs")->default(0);
+            $table->double("tarif_perujuk")->default(0);
+            $table->double("tarif_dokter")->default(0);
+            $table->double("tarif_petugas")->default(0);
             $table->timestamps();
         });
     }
