@@ -14,7 +14,29 @@ class DataBarangController extends Controller
         try {
             $search = $request->query('search');
 
-            $query = DataBarang::query();
+            $query = DataBarang::query()
+                ->leftJoin('satuan', 'data_barang.satuan', '=', 'satuan.id')
+                ->leftJoin('jenis', 'data_barang.jenis', '=', 'jenis.id')
+                ->leftJoin('kategori', 'data_barang.kategori', '=', 'kategori.id')
+                ->leftJoin('golongan', 'data_barang.golongan', '=', 'golongan.id')
+                ->select([
+                    'data_barang.nama_brng',
+                    'data_barang.satuan as satuan_id',
+                    'data_barang.isi',
+                    'data_barang.kapasitas',
+                    'data_barang.h_dasar',
+                    'data_barang.h_beli',
+                    'data_barang.harga_karyawan',
+                    'data_barang.harga_jual',
+                    'data_barang.harga_bebas',
+                    'data_barang.jenis as jenis_id',
+                    'data_barang.kategori as kategori_id',
+                    'data_barang.golongan as golongan_id',
+                    'satuan.satuan as satuan',
+                    'jenis.jenis as jenis',
+                    'kategori.kategori as kategori',
+                    'golongan.golongan as golongan',
+                ]);
 
             if ($search) {
                 $query->where('nama_brng', 'like', "%$search%");
@@ -34,7 +56,7 @@ class DataBarangController extends Controller
             }
 
             // Pagination
-            $pasien = $query->orderBy('nama_brng')->paginate(10);
+            $pasien = $query->orderBy('nama_brng')->get();
 
             return response()->json(['data' => $pasien], 200);
         } catch (\Throwable $th) {

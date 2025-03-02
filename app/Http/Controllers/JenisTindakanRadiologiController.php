@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JenisTindakanRanap;
+use App\Http\Controllers\Controller;
+use App\Models\JenisTindakanRadiologi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class JenisTindakanRanapController extends Controller
+class JenisTindakanRadiologiController extends Controller
 {
     public function index(Request $request)
     {
         try {
             $search = $request->query('search');
-            $query = JenisTindakanRanap::query();
+            $query = JenisTindakanRadiologi::query();
 
             if ($search) {
                 $query->where('nama_perawatan', 'like', "%$search%");
             }
 
-            $jenisTindakanRanap = $query->get();
+            $jenisTindakanRadiologi = $query->get();
 
             return response()->json([
-                'data' => $jenisTindakanRanap
+                'data' => $jenisTindakanRadiologi
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -37,9 +38,10 @@ class JenisTindakanRanapController extends Controller
             'bhp' => 'nullable|numeric|min:0',
             'kso' => 'nullable|numeric|min:0',
             'manajemen' => 'nullable|numeric|min:0',
-            'material' => 'nullable|numeric|min:0',
+            'bagian_rs' => 'nullable|numeric|min:0',
             'tarif_dokter' => 'nullable|numeric|min:0',
-            'tarif_perawat' => 'nullable|numeric|min:0',
+            'tarif_petugas' => 'nullable|numeric|min:0',
+            'tarif_perujuk' => 'nullable|numeric|min:0',
         ]);
 
         if ($validate->fails()) {
@@ -53,21 +55,23 @@ class JenisTindakanRanapController extends Controller
             $bhp = $request->bhp ?? 0;
             $kso = $request->kso ?? 0;
             $manajemen = $request->manajemen ?? 0;
-            $material = $request->material ?? 0;
+            $bagian_rs = $request->bagian_rs ?? 0;
             $tarif_dokter = $request->tarif_dokter ?? 0;
-            $tarif_perawat = $request->tarif_perawat ?? 0;
+            $tarif_petugas = $request->tarif_petugas ?? 0;
+            $tarif_perujuk = $request->tarif_perujuk ?? 0;
 
-            $total_tarif = $bhp + $kso + $manajemen + $material + $tarif_dokter + $tarif_perawat;
+            $total_tarif = $bhp + $kso + $manajemen + $bagian_rs + $tarif_dokter + $tarif_petugas+$tarif_perujuk;
 
-            $data = JenisTindakanRanap::create([
+            $data = JenisTindakanRadiologi::create([
                 'nama_perawatan' => $request->nama_perawatan,
                 'total_tarif' => $total_tarif,
                 'bhp' => $bhp,
                 'kso' => $kso,
                 'manajemen' => $manajemen,
-                'material' => $material,
+                'bagian_rs' => $bagian_rs,
                 'tarif_dokter' => $tarif_dokter,
-                'tarif_perawat' => $tarif_perawat,
+                'tarif_petugas' => $tarif_petugas,
+                'tarif_perujuk' => $tarif_perujuk
             ]);
 
             return response()->json([
@@ -88,9 +92,10 @@ class JenisTindakanRanapController extends Controller
             'bhp' => 'sometimes|numeric|min:0',
             'kso' => 'sometimes|numeric|min:0',
             'manajemen' => 'sometimes|numeric|min:0',
-            'material' => 'sometimes|numeric|min:0',
+            'bagian_rs' => 'sometimes|numeric|min:0',
             'tarif_dokter' => 'sometimes|numeric|min:0',
-            'tarif_perawat' => 'sometimes|numeric|min:0',
+            'tarif_petugas' => 'sometimes|numeric|min:0',
+            'tarif_perujuk' => 'sometimes|numeric|min:0',
         ]);
 
         if ($validate->fails()) {
@@ -98,21 +103,22 @@ class JenisTindakanRanapController extends Controller
         }
 
         try {
-            $data = JenisTindakanRanap::find($id);
+            $data = JenisTindakanRadiologi::find($id);
 
             if (!$data) {
                 return response()->json(['message' => 'Data tidak ditemukan'], 404);
             }
 
             // Perbarui nilai yang ada, jika tidak diberikan gunakan nilai lama
-            $bhp = $request->bhp ?? $data->bhp;
-            $kso = $request->kso ?? $data->kso;
-            $manajemen = $request->manajemen ?? $data->manajemen;
-            $material = $request->material ?? $data->material;
-            $tarif_dokter = $request->tarif_dokter ?? $data->tarif_dokter;
-            $tarif_perawat = $request->tarif_perawat ?? $data->tarif_perawat;
+            $bhp = $request->bhp ?? 0;
+            $kso = $request->kso ?? 0;
+            $manajemen = $request->manajemen ?? 0;
+            $bagian_rs = $request->bagian_rs ?? 0;
+            $tarif_dokter = $request->tarif_dokter ?? 0;
+            $tarif_petugas = $request->tarif_petugas ?? 0;
+            $tarif_perujuk = $request->tarif_perujuk ?? 0;
 
-            $total_tarif = $bhp + $kso + $manajemen + $material + $tarif_dokter + $tarif_perawat;
+            $total_tarif = $bhp + $kso + $manajemen + $bagian_rs + $tarif_dokter + $tarif_petugas+$tarif_perujuk;
 
             $data->update([
                 'nama_perawatan' => $request->nama_perawatan ?? $data->nama_perawatan,
@@ -120,9 +126,10 @@ class JenisTindakanRanapController extends Controller
                 'bhp' => $bhp,
                 'kso' => $kso,
                 'manajemen' => $manajemen,
-                'material' => $material,
+                'bagian_rs' => $bagian_rs,
                 'tarif_dokter' => $tarif_dokter,
-                'tarif_perawat' => $tarif_perawat,
+                'tarif_petugas' => $tarif_petugas,
+                'tarif_perujuk' => $tarif_perujuk
             ]);
 
             return response()->json([
@@ -139,7 +146,7 @@ class JenisTindakanRanapController extends Controller
     public function destroy($id)
     {
         try {
-            $data = JenisTindakanRanap::find($id);
+            $data = JenisTindakanRadiologi::find($id);
 
             if (!$data) {
                 return response()->json(['message' => 'Data tidak ditemukan'], 404);
@@ -158,7 +165,7 @@ class JenisTindakanRanapController extends Controller
     public function restore($id)
     {
         try {
-            $data = JenisTindakanRanap::withTrashed()->find($id);
+            $data = JenisTindakanRadiologi::withTrashed()->find($id);
 
             if (!$data) {
                 return response()->json(['message' => 'Data tidak ditemukan'], 404);

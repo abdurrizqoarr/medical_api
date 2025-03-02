@@ -68,10 +68,11 @@ class BeriTindakanRalanController extends Controller
             'dokter' => 'required|uuid|exists:pegawai,id',
             'perawat' => 'required|uuid|exists:pegawai,id',
             'id_tindakan' => 'required|array',
-            'id_tindakan.*' => 'required|uuid|exists:jenis_tindakan_ralan,id'
+            'id_tindakan.*' => 'required|uuid|exists:jenis_tindakan_ralan,id',
+            'waktu_pemberian' => 'required|date_format:Y-m-d H:i:s|before_or_equal:now'
         ], [
             'required' => 'Form harus dilengkapi',
-            'arra' => 'Form data tidak valid',
+            'array' => 'Form data tidak valid',
             'uuid' => 'Format tidak valid',
             'exists' => 'Data yang di-rujuk tidak sesuai',
         ]);
@@ -83,16 +84,33 @@ class BeriTindakanRalanController extends Controller
         }
 
         try {
-            $tindakanList = [];
+            $pasien = Registrasi::where('no_rawat', $request->no_rawat)->first();
 
+            if (!$pasien) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            if ($pasien->status_bayar) {
+                return response()->json([
+                    'message' => 'Pasien telah membayar tagihan, data tidak dapat diubah'
+                ], 401);
+            }
+
+            $tindakanList = JenisTindakanRalan::whereIn('id', $request->id_tindakan)->get()->keyBy('id');
+
+            if ($tindakanList->count() !== count($request->id_tindakan)) {
+                return response()->json([
+                    'message' => 'Beberapa tindakan tidak valid'
+                ], 400);
+            }
+
+            $insertData = [];
             foreach ($request->id_tindakan as $idTindakan) {
-                $tindakan = JenisTindakanRalan::find($idTindakan);
+                $tindakan = $tindakanList[$idTindakan];
 
-                if (!$tindakan) {
-                    continue; // Skip jika tidak ditemukan (seharusnya tidak terjadi karena ada validasi exists)
-                }
-
-                $beriTindakan = ModelsBeriTindakanRalan::create([
+                $insertData[] = [
                     'no_rawat' => $request->no_rawat,
                     'dokter' => $request->dokter,
                     'perawat' => $request->perawat,
@@ -104,10 +122,14 @@ class BeriTindakanRalanController extends Controller
                     'material' => $tindakan->material,
                     'tarif_dokter' => $tindakan->tarif_dokter,
                     'tarif_perawat' => $tindakan->tarif_perawat,
-                    'waktu_pemberian' => now(),
-                ]);
+                    'waktu_pemberian' => $request->waktu_pemberian,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
 
-                $tindakanList[] = $beriTindakan;
+            if (!empty($insertData)) {
+                ModelsBeriTindakanRalan::insert($insertData);
             }
 
             return response()->json([
@@ -140,6 +162,20 @@ class BeriTindakanRalanController extends Controller
         }
 
         try {
+            $pasien = Registrasi::where('no_rawat', $request->no_rawat)->first();
+
+            if (!$pasien) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            if ($pasien->status_bayar) {
+                return response()->json([
+                    'message' => 'Pasien telah membayar tagihan, data tidak dapat diubah'
+                ], 401);
+            }
+            
             // Ambil semua data yang sesuai dengan ID yang dikirim
             $data = ModelsBeriTindakanRalan::whereIn('id', $request->id)->get();
 
@@ -153,7 +189,7 @@ class BeriTindakanRalanController extends Controller
             ModelsBeriTindakanRalan::whereIn('id', $request->id)->delete();
 
             return response()->json([
-                'message' => 'Beri tindakan berhasil dihapus',
+                'message' => 'tindakan berhasil dihapus',
                 'deleted_ids' => $request->id
             ], 200);
         } catch (\Throwable $th) {

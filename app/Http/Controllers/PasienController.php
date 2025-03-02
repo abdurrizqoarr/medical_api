@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pasien;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +19,49 @@ class PasienController extends Controller
         try {
             $search = $request->query('search');
 
-            $query = Pasien::query();
+            $query = Pasien::query()->leftJoin('keluarga', 'pasien.keluarga', '=', 'keluarga.id')
+                ->leftJoin('pendidikan', 'pasien.pendidikan', '=', 'pendidikan.id')
+                ->leftJoin('cacat_fisik', 'pasien.cacat_fisik', '=', 'cacat_fisik.id')
+                ->leftJoin('suku', 'pasien.suku', '=', 'suku.id')
+                ->leftJoin('bahasa', 'pasien.bahasa', '=', 'bahasa.id')
+                ->leftJoin('provinsi', 'pasien.provinsi', '=', 'provinsi.id')
+                ->leftJoin('kabupaten', 'pasien.kabupaten', '=', 'kabupaten.id')
+                ->leftJoin('kecamatan', 'pasien.kecamatan', '=', 'kecamatan.id')
+                ->leftJoin('kelurahan', 'pasien.kelurahan', '=', 'kelurahan.id')
+                ->select([
+                    'pasien.no_rm',
+                    'pasien.nama_pasien',
+                    'pasien.no_ktp',
+                    'pasien.jenis_kelamin',
+                    'pasien.tempat_lahir',
+                    'pasien.tanggal_lahir',
+                    'pasien.nama_ibu',
+                    'pasien.alamat',
+                    'pasien.gol_darah',
+                    'pasien.pekerjaan',
+                    'pasien.stts_nikah',
+                    'pasien.agama',
+                    'pasien.tgl_daftar',
+                    'pasien.no_tlp',
+                    'pasien.kelurahan as kelurahan_id',
+                    'pasien.kecamatan as kecamatan_id',
+                    'pasien.kabupaten as kabupaten_id',
+                    'pasien.suku as suku_id',
+                    'pasien.bahasa as bahasa_id',
+                    'pasien.provinsi as provinsi_id',
+                    'pasien.cacat_fisik as cacatFisik_id',
+                    'pasien.pendidikan as pendidikan_id',
+                    'pasien.keluarga as keluarga_id',
+                    'keluarga.keluarga',
+                    'kelurahan.kelurahan',
+                    'kecamatan.kecamatan',
+                    'kabupaten.kabupaten',
+                    'suku.suku',
+                    'bahasa.bahasa',
+                    'provinsi.provinsi',
+                    'cacat_fisik.cacat_fisik',
+                    'pendidikan.jenjang_pendidikan as pendidikan',
+                ]);
 
             // Pencarian dengan grouping
             if ($search) {
@@ -50,7 +93,7 @@ class PasienController extends Controller
             }
 
             // Pagination
-            $pasien = $query->orderBy('no_rm')->paginate(10);
+            $pasien = $query->orderBy('no_rm')->get();
 
             return response()->json(['data' => $pasien], 200);
         } catch (\Throwable $th) {
@@ -77,7 +120,6 @@ class PasienController extends Controller
             'pekerjaan' => 'nullable|string|max:240',
             'stts_nikah' => 'required|in:BELUM MENIKAH,MENIKAH,JANDA,DUDHA',
             'agama' => 'required|string|max:120',
-            'tgl_daftar' => 'required|date',
             'no_tlp' => 'nullable|string|max:40',
             'kelurahan' => 'nullable|uuid|exists:kelurahan,id',
             'kecamatan' => 'nullable|uuid|exists:kecamatan,id',
@@ -111,17 +153,17 @@ class PasienController extends Controller
                 'no_ktp' => $request->no_ktp,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'tempat_lahir' => $request->tempat_lahir,
-                'tanggal_lahir' => $request->tanggal_lahir,
+                'tanggal_lahir' => Carbon::parse($request->tanggal_lahir)->format('Y-m-d'),
                 'nama_ibu' => $request->nama_ibu,
                 'alamat' => $request->alamat,
                 'gol_darah' => $request->gol_darah,
                 'pekerjaan' => $request->pekerjaan,
                 'stts_nikah' => $request->stts_nikah,
                 'agama' => $request->agama,
-                'tgl_daftar' => $request->tgl_daftar,
                 'no_tlp' => $request->no_tlp,
                 'kelurahan' => $request->kelurahan,
                 'kecamatan' => $request->kecamatan,
+                'tgl_daftar' => now(),
                 'kabupaten' => $request->kabupaten,
                 'suku' => $request->suku,
                 'bahasa' => $request->bahasa,
@@ -195,7 +237,6 @@ class PasienController extends Controller
             'pekerjaan' => 'sometimes|nullable|string|max:240',
             'stts_nikah' => 'sometimes|required|in:BELUM MENIKAH,MENIKAH,JANDA,DUDHA',
             'agama' => 'sometimes|required|string|max:120',
-            'tgl_daftar' => 'sometimes|required|date',
             'no_tlp' => 'sometimes|nullable|string|max:40',
             'kelurahan' => 'sometimes|nullable|uuid|exists:kelurahan,id',
             'kecamatan' => 'sometimes|nullable|uuid|exists:kecamatan,id',
@@ -237,7 +278,7 @@ class PasienController extends Controller
                 'pekerjaan' => $request->pekerjaan,
                 'stts_nikah' => $request->stts_nikah,
                 'agama' => $request->agama,
-                'tgl_daftar' => $request->tgl_daftar,
+                'tgl_daftar' => now(),
                 'no_tlp' => $request->no_tlp,
                 'kelurahan' => $request->kelurahan,
                 'kecamatan' => $request->kecamatan,

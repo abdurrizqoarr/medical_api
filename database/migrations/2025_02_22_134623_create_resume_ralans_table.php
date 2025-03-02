@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('resume_ralan', function (Blueprint $table) {
             $table->uuid("id")->primary();
-            $table->string("no_rawat", 20);
+            $table->string("no_rawat", 20)->unique(true);
             $table->uuid("dokter_dpjb");
             $table->timestamp("waktu_resume");
             $table->enum("status_pulang", ['HIDUP', 'MENINGGAL'])->default('HIDUP');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BeriTindakanRanap;
+use App\Models\JenisTindakanRanap;
 use App\Models\Registrasi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -67,10 +68,11 @@ class BeriTindakanRanapController extends Controller
             'dokter' => 'required|uuid|exists:pegawai,id',
             'perawat' => 'required|uuid|exists:pegawai,id',
             'id_tindakan' => 'required|array',
-            'id_tindakan.*' => 'required|uuid|exists:jenis_tindakan_ranap,id'
+            'id_tindakan.*' => 'required|uuid|exists:jenis_tindakan_ralan,id',
+            'waktu_pemberian' => 'required|date_format:Y-m-d H:i:s|before_or_equal:now'
         ], [
             'required' => 'Form harus dilengkapi',
-            'arra' => 'Form data tidak valid',
+            'array' => 'Form data tidak valid',
             'uuid' => 'Format tidak valid',
             'exists' => 'Data yang di-rujuk tidak sesuai',
         ]);
@@ -82,16 +84,33 @@ class BeriTindakanRanapController extends Controller
         }
 
         try {
-            $tindakanList = [];
+            $pasien = Registrasi::where('no_rawat', $request->no_rawat)->first();
 
+            if (!$pasien) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            if ($pasien->status_bayar) {
+                return response()->json([
+                    'message' => 'Pasien telah membayar tagihan, data tidak dapat diubah'
+                ], 401);
+            }
+
+            $tindakanList = JenisTindakanRanap::whereIn('id', $request->id_tindakan)->get()->keyBy('id');
+
+            if ($tindakanList->count() !== count($request->id_tindakan)) {
+                return response()->json([
+                    'message' => 'Beberapa tindakan tidak valid'
+                ], 400);
+            }
+
+            $insertData = [];
             foreach ($request->id_tindakan as $idTindakan) {
-                $tindakan = BeriTindakanRanap::find($idTindakan);
+                $tindakan = $tindakanList[$idTindakan];
 
-                if (!$tindakan) {
-                    continue; // Skip jika tidak ditemukan (seharusnya tidak terjadi karena ada validasi exists)
-                }
-
-                $beriTindakan = BeriTindakanRanap::create([
+                $insertData[] = [
                     'no_rawat' => $request->no_rawat,
                     'dokter' => $request->dokter,
                     'perawat' => $request->perawat,
@@ -103,10 +122,14 @@ class BeriTindakanRanapController extends Controller
                     'material' => $tindakan->material,
                     'tarif_dokter' => $tindakan->tarif_dokter,
                     'tarif_perawat' => $tindakan->tarif_perawat,
-                    'waktu_pemberian' => now(),
-                ]);
+                    'waktu_pemberian' => $request->waktu_pemberian,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
 
-                $tindakanList[] = $beriTindakan;
+            if (!empty($insertData)) {
+                BeriTindakanRanap::insert($insertData);
             }
 
             return response()->json([
@@ -139,6 +162,20 @@ class BeriTindakanRanapController extends Controller
         }
 
         try {
+            $pasien = Registrasi::where('no_rawat', $request->no_rawat)->first();
+
+            if (!$pasien) {
+                return response()->json([
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            if ($pasien->status_bayar) {
+                return response()->json([
+                    'message' => 'Pasien telah membayar tagihan, data tidak dapat diubah'
+                ], 401);
+            }
+
             // Ambil semua data yang sesuai dengan ID yang dikirim
             $data = BeriTindakanRanap::whereIn('id', $request->id)->get();
 
@@ -148,6 +185,11 @@ class BeriTindakanRanapController extends Controller
                 ], 404);
             }
 
+            if ($data->status_bayar) {
+                return response()->json([
+                    'message' => 'Pasien telah membayar tagihan, data tidak dapat diubah'
+                ], 401);
+            }
             // Hapus semua data
             BeriTindakanRanap::whereIn('id', $request->id)->delete();
 

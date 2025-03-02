@@ -19,7 +19,7 @@ class JenisTindakanRalanController extends Controller
                 $query->where('nama_perawatan', 'like', "%$search%");
             }
 
-            $jenisTindakanRalan = $query->paginate(10);
+            $jenisTindakanRalan = $query->get();
 
             return response()->json([
                 'data' => $jenisTindakanRalan

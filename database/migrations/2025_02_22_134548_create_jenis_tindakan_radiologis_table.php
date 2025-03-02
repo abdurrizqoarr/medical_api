@@ -23,6 +23,7 @@ return new class extends Migration
             $table->double("tarif_dokter")->default(0);
             $table->double("tarif_petugas")->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -15,12 +15,11 @@ return new class extends Migration
             $table->uuid("id")->primary();
             $table->string("no_rawat", 20);
             $table->timestamp("waktu_permintaan");
-            $table->timestamp("waktu_sampel");
-            $table->timestamp("waktu_sampel");
-            $table->timestamp("waktu_hasil");
+            $table->timestamp("waktu_sampel")->nullable(true);
+            $table->timestamp("waktu_hasil")->nullable(true);
             $table->uuid("dokter_perujuk");
-            $table->text("informasi_tambahan");
-            $table->text("diganosis_klinis");
+            $table->text("informasi_tambahan")->nullable(true);
+            $table->text("diganosis_klinis")->nullable(true);
 
             $table->timestamps();
             $table->foreign('no_rawat')->references('no_rawat')->on('registrasi');

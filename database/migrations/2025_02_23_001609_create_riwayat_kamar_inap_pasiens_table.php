@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('riwayat_kamar_inap_pasiens', function (Blueprint $table) {
+        Schema::create('riwayat_kamar_inap_pasien', function (Blueprint $table) {
             $table->uuid("id")->primary();
             $table->string("no_rawat", 20);
             $table->uuid("id_bed");

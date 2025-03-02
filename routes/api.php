@@ -11,6 +11,7 @@ use App\Http\Controllers\GolonganController;
 use App\Http\Controllers\JaminanController;
 use App\Http\Controllers\JenisController;
 use App\Http\Controllers\JenisTindakanLabController;
+use App\Http\Controllers\JenisTindakanRadiologiController;
 use App\Http\Controllers\JenisTindakanRalanController;
 use App\Http\Controllers\JenisTindakanRanapController;
 use App\Http\Controllers\KabupatenController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\PendidikanController;
 use App\Http\Controllers\PenerimaanBarangMedisController;
 use App\Http\Controllers\PengajuanBarangMedisController;
 use App\Http\Controllers\PoliController;
+use App\Http\Controllers\ProvinsiController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\SpesialisController;
@@ -51,6 +53,12 @@ route::post('/bahasa', [BahasaController::class, 'store']);
 route::put('/bahasa/{id}', [BahasaController::class, 'update']);
 route::delete('/bahasa/{id}', [BahasaController::class, 'destroy']);
 route::get('/bahasa-restore/{id}', [BahasaController::class, 'restore']);
+
+route::get('/provinsi', [ProvinsiController::class, 'index']);
+route::post('/provinsi', [ProvinsiController::class, 'store']);
+route::put('/provinsi/{id}', [ProvinsiController::class, 'update']);
+route::delete('/provinsi/{id}', [ProvinsiController::class, 'destroy']);
+route::get('/provinsi-restore/{id}', [ProvinsiController::class, 'restore']);
 
 route::get('/cacat-fisik', [CacatFisikController::class, 'index']);
 route::post('/cacat-fisik', [CacatFisikController::class, 'store']);
@@ -214,3 +222,9 @@ route::post('/jenis-tindakan-lab', [JenisTindakanLabController::class, 'store'])
 route::put('/jenis-tindakan-lab/{id}', [JenisTindakanLabController::class, 'update']);
 route::delete('/jenis-tindakan-lab/{id}', [JenisTindakanLabController::class, 'destroy']);
 route::get('/jenis-tindakan-lab-restore/{id}', [JenisTindakanLabController::class, 'restore']);
+
+route::get('/jenis-tindakan-radiologi', [JenisTindakanRadiologiController::class, 'index']);
+route::post('/jenis-tindakan-radiologi', [JenisTindakanRadiologiController::class, 'store']);
+route::put('/jenis-tindakan-radiologi/{id}', [JenisTindakanRadiologiController::class, 'update']);
+route::delete('/jenis-tindakan-radiologi/{id}', [JenisTindakanRadiologiController::class, 'destroy']);
+route::get('/jenis-tindakan-radiologi-restore/{id}', [JenisTindakanRadiologiController::class, 'restore']);

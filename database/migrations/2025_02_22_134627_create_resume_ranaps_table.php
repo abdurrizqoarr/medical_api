@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('resume_ranap', function (Blueprint $table) {
             $table->uuid("id")->primary();
-            $table->string("no_rawat", 20);
+            $table->string("no_rawat", 20)->unique(true);
             $table->uuid("dokter_dpjb");
             $table->timestamp("tanggal_masuk");
             $table->timestamp("tanggal_keluar");

@@ -18,7 +18,7 @@ class JenisTindakanLabController extends Controller
                 $query->where('nama_perawatan', 'like', "%$search%");
             }
 
-            $jenisTindakanLab = $query->paginate(10);
+            $jenisTindakanLab = $query->get();
 
             return response()->json([
                 'data' => $jenisTindakanLab
@@ -71,7 +71,8 @@ class JenisTindakanLabController extends Controller
                 'bagian_rs' => $bagian_rs,
                 'tarif_dokter' => $tarif_dokter,
                 'tarif_petugas' => $tarif_petugas,
-                'tarif_perujuk' => $tarif_perujuk
+                'tarif_perujuk' => $tarif_perujuk,
+                'kategori' => $request->kategori
             ]);
 
             return response()->json([
@@ -96,6 +97,7 @@ class JenisTindakanLabController extends Controller
             'tarif_dokter' => 'sometimes|numeric|min:0',
             'tarif_petugas' => 'sometimes|numeric|min:0',
             'tarif_perujuk' => 'sometimes|numeric|min:0',
+            'kategori' => 'sometimes|in:PK,PA,MB',
         ]);
 
         if ($validate->fails()) {
@@ -129,7 +131,8 @@ class JenisTindakanLabController extends Controller
                 'bagian_rs' => $bagian_rs,
                 'tarif_dokter' => $tarif_dokter,
                 'tarif_petugas' => $tarif_petugas,
-                'tarif_perujuk' => $tarif_perujuk
+                'tarif_perujuk' => $tarif_perujuk,
+                'kategori' => $request->kategori
             ]);
 
             return response()->json([
