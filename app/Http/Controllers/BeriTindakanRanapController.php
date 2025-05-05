@@ -7,6 +7,7 @@ use App\Models\JenisTindakanRanap;
 use App\Models\Registrasi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class BeriTindakanRanapController extends Controller
@@ -83,6 +84,7 @@ class BeriTindakanRanapController extends Controller
             ], 422);
         }
 
+        DB::beginTransaction();
         try {
             $pasien = Registrasi::where('no_rawat', $request->no_rawat)->first();
 
@@ -95,7 +97,7 @@ class BeriTindakanRanapController extends Controller
             if ($pasien->status_bayar) {
                 return response()->json([
                     'message' => 'Pasien telah membayar tagihan, data tidak dapat diubah'
-                ], 401);
+                ], 403);
             }
 
             $tindakanList = JenisTindakanRanap::whereIn('id', $request->id_tindakan)->get()->keyBy('id');
@@ -130,13 +132,19 @@ class BeriTindakanRanapController extends Controller
 
             if (!empty($insertData)) {
                 BeriTindakanRanap::insert($insertData);
+            }else {
+                return response()->json([
+                    'message' => 'Tidak ada data yang dimasukkan'
+                ], 400);
             }
+            DB::commit();
 
             return response()->json([
                 'message' => 'Data Beri Tindakan ranap berhasil dibuat',
-                'data' => $tindakanList
+                'data' => null
             ], 201);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Terjadi kesalahan server ' . $th->getMessage()
             ], 500);
@@ -173,7 +181,7 @@ class BeriTindakanRanapController extends Controller
             if ($pasien->status_bayar) {
                 return response()->json([
                     'message' => 'Pasien telah membayar tagihan, data tidak dapat diubah'
-                ], 401);
+                ], 403);
             }
 
             // Ambil semua data yang sesuai dengan ID yang dikirim

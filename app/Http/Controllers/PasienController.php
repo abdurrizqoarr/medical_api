@@ -6,6 +6,7 @@ use App\Models\Pasien;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -142,9 +143,7 @@ class PasienController extends Controller
             DB::beginTransaction();
 
             // Generate nomor rekam medis (no_rm) dengan format 6 digit
-            $lastPatient = Pasien::orderBy('no_rm', 'desc')->first();
-            $nextNumber = $lastPatient ? (int) $lastPatient->no_rm + 1 : 1;
-            $no_rm = str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+            $no_rm = strtoupper(Str::random(10));
 
             // Simpan data ke database
             $pasien = Pasien::create([
@@ -195,7 +194,51 @@ class PasienController extends Controller
     public function show(string $id)
     {
         try {
-            $pasien = Pasien::first($id);
+            $pasien = Pasien::select([
+                'pasien.no_rm',
+                'pasien.nama_pasien',
+                'pasien.no_ktp',
+                'pasien.jenis_kelamin',
+                'pasien.tempat_lahir',
+                'pasien.tanggal_lahir',
+                'pasien.nama_ibu',
+                'pasien.alamat',
+                'pasien.gol_darah',
+                'pasien.pekerjaan',
+                'pasien.stts_nikah',
+                'pasien.agama',
+                'pasien.tgl_daftar',
+                'pasien.no_tlp',
+                'pasien.kelurahan as kelurahan_id',
+                'pasien.kecamatan as kecamatan_id',
+                'pasien.kabupaten as kabupaten_id',
+                'pasien.suku as suku_id',
+                'pasien.bahasa as bahasa_id',
+                'pasien.provinsi as provinsi_id',
+                'pasien.cacat_fisik as cacatFisik_id',
+                'pasien.pendidikan as pendidikan_id',
+                'pasien.keluarga as keluarga_id',
+                'keluarga.keluarga',
+                'kelurahan.kelurahan',
+                'kecamatan.kecamatan',
+                'kabupaten.kabupaten',
+                'suku.suku',
+                'bahasa.bahasa',
+                'provinsi.provinsi',
+                'cacat_fisik.cacat_fisik',
+                'pendidikan.jenjang_pendidikan as pendidikan',
+            ])
+                ->where('no_rm', $id)
+                ->leftJoin('keluarga', 'pasien.keluarga', '=', 'keluarga.id')
+                ->leftJoin('pendidikan', 'pasien.pendidikan', '=', 'pendidikan.id')
+                ->leftJoin('cacat_fisik', 'pasien.cacat_fisik', '=', 'cacat_fisik.id')
+                ->leftJoin('suku', 'pasien.suku', '=', 'suku.id')
+                ->leftJoin('bahasa', 'pasien.bahasa', '=', 'bahasa.id')
+                ->leftJoin('provinsi', 'pasien.provinsi', '=', 'provinsi.id')
+                ->leftJoin('kabupaten', 'pasien.kabupaten', '=', 'kabupaten.id')
+                ->leftJoin('kecamatan', 'pasien.kecamatan', '=', 'kecamatan.id')
+                ->leftJoin('kelurahan', 'pasien.kelurahan', '=', 'kelurahan.id')
+                ->first();
 
             if (!$pasien) {
                 return response()->json([
@@ -226,7 +269,7 @@ class PasienController extends Controller
                 'required',
                 'string',
                 'max:40',
-                Rule::unique('pasien', 'no_ktp')->ignore($id), // Mengabaikan pasien dengan ID yang sedang diperbarui
+                Rule::unique('pasien', 'no_ktp')->ignore($id, 'no_rm'), // Mengabaikan pasien dengan ID yang sedang diperbarui
             ],
             'jenis_kelamin' => 'sometimes|required|in:PRIA,WANITA',
             'tempat_lahir' => 'sometimes|required|string|max:200',

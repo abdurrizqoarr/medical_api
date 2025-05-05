@@ -41,4 +41,9 @@ class Registrasi extends Model
     {
         return $this->belongsTo(Dokter::class, 'dokter', 'id');
     }
+
+    public function jaminanData()
+    {
+        return $this->belongsTo(Jaminan::class, 'jaminan', 'id');
+    }
 }

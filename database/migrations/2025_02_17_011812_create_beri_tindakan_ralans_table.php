@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string("no_rawat");
             $table->uuid("dokter");
             $table->uuid("perawat");
-            $table->uuid("id_tindakan");
             $table->string("nama_perawatan");
             $table->double("total_tarif");
             $table->double("bhp")->default(0);

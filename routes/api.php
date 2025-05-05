@@ -3,6 +3,8 @@
 use App\Http\Controllers\BahasaController;
 use App\Http\Controllers\BangsalController;
 use App\Http\Controllers\BedController;
+use App\Http\Controllers\BeriTindakanRalanController;
+use App\Http\Controllers\BeriTindakanRanapController;
 use App\Http\Controllers\CacatFisikController;
 use App\Http\Controllers\DataBarangController;
 use App\Http\Controllers\DepoController;
@@ -176,10 +178,11 @@ route::delete('/data-barang/{id}', [DataBarangController::class, 'destroy']);
 route::delete('/data-barang-trashed/{id}', [DataBarangController::class, 'trashed']);
 route::get('/data-barang-restore/{id}', [DataBarangController::class, 'restore']);
 
-route::post('/pengajuan-barang', [PengajuanBarangMedisController::class, 'createPengajuan']);
-route::put('/pengajuan-barang/{id}', [PengajuanBarangMedisController::class, 'updatePengajuan']);
-route::put('/pengajuan-barang-update-status/{id}', [PengajuanBarangMedisController::class, 'updateStatusPengajuan']);
-route::post('/penerimaan-barang/{id}', [PenerimaanBarangMedisController::class, 'terimaBarang']);
+//perlu di cek ulang
+// route::post('/pengajuan-barang', [PengajuanBarangMedisController::class, 'createPengajuan']);
+// route::put('/pengajuan-barang/{id}', [PengajuanBarangMedisController::class, 'updatePengajuan']);
+// route::put('/pengajuan-barang-update-status/{id}', [PengajuanBarangMedisController::class, 'updateStatusPengajuan']);
+// route::post('/penerimaan-barang/{id}', [PenerimaanBarangMedisController::class, 'terimaBarang']);
 
 route::get('/poli', [PoliController::class, 'index']);
 route::post('/poli', [PoliController::class, 'store']);
@@ -228,3 +231,11 @@ route::post('/jenis-tindakan-radiologi', [JenisTindakanRadiologiController::clas
 route::put('/jenis-tindakan-radiologi/{id}', [JenisTindakanRadiologiController::class, 'update']);
 route::delete('/jenis-tindakan-radiologi/{id}', [JenisTindakanRadiologiController::class, 'destroy']);
 route::get('/jenis-tindakan-radiologi-restore/{id}', [JenisTindakanRadiologiController::class, 'restore']);
+
+route::post('/cari-riwayat-tindakan-ralan', [BeriTindakanRalanController::class, 'index']);
+route::post('/beri-tindakan-ralan', [BeriTindakanRalanController::class, 'beriTindakan']);
+route::delete('/delete-riwayat-tindakan-ralan/{id}', [BeriTindakanRalanController::class, 'destroy']);
+
+route::post('/cari-riwayat-tindakan-ranap', [BeriTindakanRanapController::class, 'index']);
+route::post('/beri-tindakan-ranap', [BeriTindakanRanapController::class, 'beriTindakan']);
+route::delete('/beri-tindakan-ranap/{id}', [BeriTindakanRanapController::class, 'destroy']);

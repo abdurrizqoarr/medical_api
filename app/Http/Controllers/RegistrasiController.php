@@ -61,7 +61,11 @@ class RegistrasiController extends Controller
             $query->orderBy($sortBy, $sortOrder);
 
             // Ambil data
-            $registrasi = $query->with('pasienData')->get();
+            $registrasi = $query->with('pasienData')
+                ->with('poliData')
+                ->with('dokterData')
+                ->with('jaminanData')
+                ->get();
 
             return response()->json([
                 'data' => $registrasi
@@ -100,19 +104,11 @@ class RegistrasiController extends Controller
 
         try {
             DB::beginTransaction();
-            $lastRegisPoli = Registrasi::where('poli', $request->poli)
-                ->whereDate('waktu_registrasi', today())
-                ->orderBy('antrian_poli', 'desc')
-                ->first();
-
-            $antrianPoli = $lastRegisPoli ? $lastRegisPoli->antrian_poli + 1 : 1;
-
             $nomerRawat = now()->format('YmdHis') . rand(100, 999);
 
             $registrasiBaru = Registrasi::create([
                 'no_rawat' => $nomerRawat,
                 'waktu_registrasi' => now(),
-                'antrian_poli' => $antrianPoli,
                 'poli' => $request->poli,
                 'dokter' => $request->dokter,
                 'jaminan' => $request->jaminan,
@@ -139,7 +135,11 @@ class RegistrasiController extends Controller
     public function show(string $id)
     {
         try {
-            $dataRegis = Registrasi::where('no_rawat', $id)->first();
+            $dataRegis = Registrasi::where('no_rawat', $id)
+                ->with('pasienData')
+                ->with('poliData')
+                ->with('dokterData')
+                ->with('jaminanData')->first();
 
             if (!$dataRegis) {
                 return response()->json([
@@ -167,13 +167,13 @@ class RegistrasiController extends Controller
             'poli' => 'sometimes|string|exists:poli,id',
             'dokter' => 'sometimes|string|exists:dokter,id',
             'jaminan' => 'sometimes|string|exists:jaminan,id',
-            'pasien' => 'sometimes|string|exists:pasien,no_rm',
+            'waktu_registrasi' => 'sometimes|date_format:Y-m-d H:i:s|before_or_equal:now',
         ], [
             'string' => 'Tipe data tidak valid',
             'poli.exists' => 'Poli tidak ditemukan',
             'dokter.exists' => 'Dokter tidak ditemukan',
             'jaminan.exists' => 'Jaminan tidak ditemukan',
-            'pasien.exists' => 'Pasien tidak ditemukan',
+            'waktu_registrasi.before_or_equal' => 'Waktu tidak boleh melebihi waktu saat ini',
         ]);
 
         if ($validate->fails()) {
@@ -196,25 +196,9 @@ class RegistrasiController extends Controller
 
             $updateData = [];
 
-            // Jika poli berubah, hitung ulang antrian poli
-            if ($request->filled('poli') && $dataRegis->poli != $request->poli) {
-                $lastRegisPoli = Registrasi::where('poli', $request->poli)
-                    ->whereDate('waktu_registrasi', today())
-                    ->orderBy('antrian_poli', 'desc')
-                    ->first();
-
-                $updateData['antrian_poli'] = $lastRegisPoli ? $lastRegisPoli->antrian_poli + 1 : 1;
-                $updateData['poli'] = $request->poli;
-            }
-
             // Update dokter jika dikirim dalam request
             if ($request->filled('dokter')) {
                 $updateData['dokter'] = $request->dokter;
-            }
-
-            // Update pasien jika dikirim dalam request
-            if ($request->filled('pasien')) {
-                $updateData['pasien'] = $request->pasien;
             }
 
             // Update jaminan jika dikirim dalam request
@@ -222,9 +206,20 @@ class RegistrasiController extends Controller
                 $updateData['jaminan'] = $request->jaminan;
             }
 
-            // Lakukan update jika ada perubahan
+            if ($request->filled('poli')) {
+                $updateData['poli'] = $request->poli;
+            }
+
+            if ($request->filled('waktu_registrasi')) {
+                $updateData['waktu_registrasi'] = $request->waktu_registrasi;
+            }
+
             if (!empty($updateData)) {
                 $dataRegis->update($updateData);
+            }else {
+                return response()->json([
+                    'message' => 'Tidak ada data yang diperbarui'
+                ], 422);
             }
 
             DB::commit();

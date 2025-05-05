@@ -16,7 +16,28 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
-            UserSeeder::class
+            UserSeeder::class,
+            BahasaSeeder::class,
+            BangsalSeeder::class,
+            CacatFisikSeeder::class,
+            DepoObatSeeder::class,
+            GolonganSeeder::class,
+            JaminanSeeder::class,
+            JenisSeeder::class,
+            JenisTindakanRalanSeeder::class,
+            JenisTindakanRanapSeeder::class,
+            KabupatenSeeder::class,
+            KategoriSeeder::class,
+            KecamatanSeeder::class,
+            KeluargaSeeder::class,
+            KelurahanSeeder::class,
+            PendidikanSeeder::class,
+            PoliSeeder::class,
+            ProvinsiSeeder::class,
+            SatuanSeeder::class,
+            SpesialisSeeder::class,
+            SukuSeeder::class,
+            SupplierSeeder::class,
         ]);
         Pegawai::factory(487)->create();
     }

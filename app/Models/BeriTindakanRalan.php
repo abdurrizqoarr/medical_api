@@ -30,4 +30,14 @@ class BeriTindakanRalan extends Model
     ];
 
     protected $table = 'beri_tindakan_ralan';
+
+    public function dokterData()
+    {
+        return $this->belongsTo(Pegawai::class, 'dokter', 'id');
+    }
+
+    public function perawatData()
+    {
+        return $this->belongsTo(Pegawai::class, 'perawat', 'id');
+    }
 }

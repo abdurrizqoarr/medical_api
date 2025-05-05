@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('registrasi', function (Blueprint $table) {
             $table->string("no_rawat", 20)->primary();
             $table->timestamp("waktu_registrasi");
-            $table->integer("antrian_poli");
             $table->enum("status_periksa", ['Belum', 'Sudah', 'Batal', 'Berkas Diterima', 'Dirujuk', 'Meninggal'])->default('belum');
             $table->boolean("status_bayar")->default(false);
             $table->enum('status_rawat', ['RALAN', 'RANAP'])->default('RALAN');
