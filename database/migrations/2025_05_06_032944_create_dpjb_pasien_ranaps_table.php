@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bed', function (Blueprint $table) {
+        Schema::create('dpjb_pasien_ranap', function (Blueprint $table) {
             $table->uuid("id")->primary();
-            $table->string("bed", 200)->unique(true);
-            $table->uuid("bangsal");
-            $table->double("tarif");
+            $table->string("no_rawat");
+            $table->uuid("dokter_dpjb");
+            $table->boolean('dpjb_utama');
             $table->timestamps();
-            $table->softDeletes();
 
-            $table->foreign('bangsal')->references('id')->on('bangsal');
+            $table->foreign('no_rawat')->references('no_rawat')->on('registrasi');
+            $table->foreign('dokter_dpjb')->references('id')->on('dokter');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('beds');
+        Schema::dropIfExists('dpjb_pasien_ranap');
     }
 };

@@ -22,6 +22,7 @@ class BedController extends Controller
                     'bed.bed',
                     'bed.bangsal as bangsal_id',
                     'bangsal.bangsal',
+                    'bed.tarif',
                 ]);
 
             if ($search) {
@@ -53,6 +54,7 @@ class BedController extends Controller
         $validate = Validator::make($request->all(), [
             'bed' => 'required|string|max:200|unique:bed,bed',
             'bangsal' => 'required|string|exists:bangsal,id',
+            'tarif' => 'required|numeric|min:0',
         ]);
 
         if ($validate->fails()) {
@@ -65,6 +67,7 @@ class BedController extends Controller
             $bed = Bed::create([
                 'bed' => $request->bed,
                 'bangsal' => $request->bangsal,
+                'tarif' => $request->tarif,
             ]);
 
             return response()->json([
@@ -83,6 +86,7 @@ class BedController extends Controller
         $validate = Validator::make($request->all(), [
             'bed' => 'required|string|max:200|unique:bed,bed,' . $id,
             'bangsal' => 'required|string|exists:bangsal,id',
+            'tarif' => 'required|numeric|min:0',
         ]);
 
         if ($validate->fails()) {
@@ -103,6 +107,7 @@ class BedController extends Controller
             $bed->update([
                 'bed' => $request->bed,
                 'bangsal' => $request->bangsal,
+                'tarif' => $request->tarif,
             ]);
 
             return response()->json([

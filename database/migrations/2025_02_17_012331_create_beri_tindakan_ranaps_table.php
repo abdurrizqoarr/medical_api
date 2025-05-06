@@ -31,7 +31,6 @@ return new class extends Migration
             $table->foreign('dokter')->references('id')->on('pegawai');
             $table->foreign('perawat')->references('id')->on('pegawai');
             $table->foreign('no_rawat')->references('no_rawat')->on('registrasi');
-            $table->foreign('id_tindakan')->references('id')->on('jenis_tindakan_ranap');
         });
     }
 

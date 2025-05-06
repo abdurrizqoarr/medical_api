@@ -16,7 +16,8 @@ class Bed extends Model
     protected $keyType = 'string';
     protected $fillable = [
         'bed',
-        'bangsal'
+        'bangsal',
+        'tarif'
     ];
     protected $table = 'bed';
 

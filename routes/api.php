@@ -23,9 +23,11 @@ use App\Http\Controllers\KeluargaController;
 use App\Http\Controllers\KelurahanController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\PendidikanController;
 use App\Http\Controllers\PenerimaanBarangMedisController;
 use App\Http\Controllers\PengajuanBarangMedisController;
+use App\Http\Controllers\PermintaanKamarInapController;
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\ProvinsiController;
 use App\Http\Controllers\RegistrasiController;
@@ -48,7 +50,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/login', [UserController::class, 'userLogin']);
-Route::get('/logout', [UserController::class, 'logout']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/logout', [UserController::class, 'logout']);
+});
 
 route::get('/bahasa', [BahasaController::class, 'index']);
 route::post('/bahasa', [BahasaController::class, 'store']);
@@ -238,4 +243,14 @@ route::delete('/delete-riwayat-tindakan-ralan/{id}', [BeriTindakanRalanControlle
 
 route::post('/cari-riwayat-tindakan-ranap', [BeriTindakanRanapController::class, 'index']);
 route::post('/beri-tindakan-ranap', [BeriTindakanRanapController::class, 'beriTindakan']);
-route::delete('/beri-tindakan-ranap/{id}', [BeriTindakanRanapController::class, 'destroy']);
+route::delete('/delete-riwayat-tindakan-ranap/{id}', [BeriTindakanRanapController::class, 'destroy']);
+
+route::post('/pemeriksaan', [PemeriksaanController::class, 'index']);
+route::post('/simpan-pemeriksaan', [PemeriksaanController::class, 'store']);
+route::put('/edit-pemeriksaan/{id}', [PemeriksaanController::class, 'update']);
+route::delete('/delete-pemeriksaan/{id}', [PemeriksaanController::class, 'destroy']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    route::get('/data-permintaan-rawat-inap', [PermintaanKamarInapController::class, 'index']);
+    route::post('/buat-permintaan-rawat-inap', [PermintaanKamarInapController::class, 'store']);
+});

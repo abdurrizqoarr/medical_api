@@ -6,22 +6,17 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PermintaanKamarInap extends Model
+class DpjbPasienRanap extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'pemeriksaan';
+    protected $table = 'dpjb_pasien_ranap';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
         'no_rawat',
-        'petugas_pemohon',
-        'petugas_penerima',
-        'bed_rencana',
-        'diagnosa_awal',
-        'waktu_permintaan',
-        'waktu_terima',
-        'bed_akhir',
+        'dokter_dpjb',
+        'dpjb_utama'
     ];
 }
