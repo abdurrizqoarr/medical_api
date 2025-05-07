@@ -30,6 +30,12 @@ class RolePermissionSeeder extends Seeder
                 'pegawai' => ['tambah', 'edit', 'soft-delete', 'permanent-delete', 'lihat'],
                 'dokter' => ['tambah', 'edit', 'soft-delete', 'permanent-delete', 'lihat'],
                 'registrasi' => ['tambah', 'edit', 'permanent-delete', 'lihat'],
+            ],
+            'dummy' => [
+                'provinsi' => ['tambah', 'edit', 'soft-delete', 'permanent-delete', 'lihat'],
+            ],
+            'rm' => [
+                'registrasi' => ['tambah', 'edit', 'permanent-delete', 'lihat'],
             ]
         ];
 

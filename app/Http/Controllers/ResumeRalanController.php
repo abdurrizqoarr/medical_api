@@ -53,7 +53,7 @@ class ResumeRalanController extends Controller
         $validator = Validator::make($request->all(), [
             'no_rawat' => 'required|string|exists:registrasi,no_rawat',
             'dokter_dpjb' => 'required|uuid|exists:pegawai,id',
-            'waktu_resume' => 'required|date',
+            'waktu_resume' => 'required|date_format:Y-m-d H:i:s|before_or_equal:now',
             'status_pulang' => 'required|in:HIDUP,MENINGGAL',
             'keluhan_utama' => 'nullable|string',
             'jalannya_penyakit_selama_perawatan' => 'nullable|string',

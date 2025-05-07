@@ -17,6 +17,7 @@ class PermintaanKamarInap extends Model
     protected $fillable = [
         'no_rawat',
         'petugas_pemohon',
+        'dpjb_ranap',
         'petugas_penerima',
         'bed_rencana',
         'diagnosa_awal',

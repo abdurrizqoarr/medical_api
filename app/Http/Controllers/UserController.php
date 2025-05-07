@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -31,12 +33,16 @@ class UserController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Email atau password salah'
+                'message' => 'Username atau password salah'
             ], 401);
         }
 
         // Buat token baru
-        $token = $user->createToken('authToken')->plainTextToken;
+        $token = $user->createToken(
+            'authToken',
+            ['*'],
+            now()->addHours(6)
+        )->plainTextToken;
 
         // Ambil role dan permission user
 
@@ -58,6 +64,15 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Logout berhasil'
+        ]);
+    }
+
+    public function tes12()
+    {
+        // PermissionHelper::checkPermissionOrAbort('tambah-provinsi');
+            $user = Auth::user();
+            return response()->json([
+            'data' => $user
         ]);
     }
 }
