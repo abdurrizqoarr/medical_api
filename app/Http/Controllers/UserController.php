@@ -69,10 +69,9 @@ class UserController extends Controller
 
     public function tes12()
     {
-        // PermissionHelper::checkPermissionOrAbort('tambah-provinsi');
-            $user = Auth::user();
+        PermissionHelper::checkPermissionOrAbort('edit-suku');
             return response()->json([
-            'data' => $user
+            'data' => "hai"
         ]);
     }
 }
