@@ -20,7 +20,7 @@ return new class extends Migration
             $table->uuid("bed_rencana");
             $table->uuid("bed_akhir")->nullable(true);
             $table->string("diagnosa_awal");
-            $table->timestamp("waktu_permintaan");
+            $table->timestamp("waktu_permintaan")->nullable(true);
             $table->timestamp("waktu_terima");
             $table->enum("status", ['PENDING', 'DITERIMA', 'BATAL'])->default('PENDING');
             $table->timestamps();
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('permintaan_kamar_inaps');
+        Schema::dropIfExists('permintaan_kamar_inap');
     }
 };

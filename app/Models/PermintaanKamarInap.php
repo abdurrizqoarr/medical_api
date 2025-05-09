@@ -10,7 +10,7 @@ class PermintaanKamarInap extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'pemeriksaan';
+    protected $table = 'permintaan_kamar_inap';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -24,5 +24,6 @@ class PermintaanKamarInap extends Model
         'waktu_permintaan',
         'waktu_terima',
         'bed_akhir',
+        'status',
     ];
 }

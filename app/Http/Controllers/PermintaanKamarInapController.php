@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bed;
 use App\Models\DpjbPasienRanap;
 use App\Models\PermintaanKamarInap;
 use App\Models\Registrasi;
@@ -16,7 +17,21 @@ class PermintaanKamarInapController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = PermintaanKamarInap::query();
+            $query = PermintaanKamarInap::query()
+                ->select(
+                    'permintaan_kamar_inap.diagnosa_awal',
+                    'permintaan_kamar_inap.waktu_permintaan',
+                    'permintaan_kamar_inap.waktu_terima',
+                    'registrasi.pasien',
+                    'registrasi.no_rawat',
+                    'pasien.nama_pasien',
+                    'pemohon.nama AS petugas_pemohon',
+                    'penerima.nama AS petugas_penerima',
+                    'bed_rencana.bed',
+                    'bed_akhir.bed',
+                    'pegawai_dokter.nama',
+                    'status',
+                );
 
             // Filter berdasarkan tanggal
             $tanggalMulai = $request->query('tanggal_mulai', today()->toDateString());
@@ -26,6 +41,14 @@ class PermintaanKamarInapController extends Controller
 
             $dataPermintaan = $query
                 ->orderBy('waktu_permintaan')
+                ->join('registrasi', 'registrasi.no_rawat', '=', 'permintaan_kamar_inap.no_rawat')
+                ->join('pasien', 'pasien.no_rm', '=', 'registrasi.pasien')
+                ->join('pegawai as pemohon', 'pemohon.id', '=', 'permintaan_kamar_inap.petugas_pemohon')
+                ->leftJoin('pegawai as penerima', 'penerima.id', '=', 'permintaan_kamar_inap.petugas_penerima')
+                ->join('bed as bed_rencana', 'bed_rencana.id', '=', 'permintaan_kamar_inap.bed_rencana')
+                ->leftJoin('bed as bed_akhir', 'bed_akhir.id', '=', 'permintaan_kamar_inap.bed_akhir')
+                ->join('dokter', 'dokter.id', '=', 'permintaan_kamar_inap.dpjb_ranap')
+                ->join('pegawai as pegawai_dokter', 'pegawai_dokter.id', '=', 'dokter.pegawai')
                 ->get();
 
             return response()->json([
@@ -41,13 +64,12 @@ class PermintaanKamarInapController extends Controller
     public function store(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'no_rawat' => 'required|uuid|exists:registrasi,no_rawat',
+            'no_rawat' => 'required|exists:registrasi,no_rawat',
             'bed' => 'required|uuid|exists:bed,id',
             'diagnosa_awal' => 'nullable|string',
             'dpjb_ranap' => 'required|uuid|exists:dokter,id',
         ], [
             'no_rawat.required' => 'Nomor rawat wajib diisi.',
-            'no_rawat.uuid' => 'Format nomor rawat tidak valid.',
             'no_rawat.exists' => 'Nomor rawat tidak ditemukan dalam data registrasi.',
 
             'bed.required' => 'Bed tujuan wajib diisi.',
@@ -106,7 +128,7 @@ class PermintaanKamarInapController extends Controller
                     }
                 }
             ],
-            'status' => 'required|in:PENDING,DITERIMA,BATAL',
+            'status' => 'required|in:DITERIMA,BATAL',
         ], [
             'status.required' => 'Status wajib diisi.',
             'status.in' => 'Status tidak valid.',
@@ -124,9 +146,8 @@ class PermintaanKamarInapController extends Controller
             DB::beginTransaction();
             $user = Auth::user();
 
-            $permintaanKamar = PermintaanKamarInap::where('id', $id)
-            ->join('bed', 'permintaan_kamar_inap.bed_rencana', '=', 'bed.id')
-            ->firstOrFail();
+            $permintaanKamar = PermintaanKamarInap::where('permintaan_kamar_inap.id', $id)
+                ->firstOrFail();
 
             $permintaanKamar->petugas_penerima = $user->pegawai_id;
             $permintaanKamar->waktu_permintaan = now();
@@ -134,6 +155,8 @@ class PermintaanKamarInapController extends Controller
 
             // Atur bed_akhir sesuai status
             if ($request->status === 'DITERIMA') {
+                $bed_data = Bed::where('id', $request->bed)->firstOrFail();
+
                 $permintaanKamar->bed_akhir = $request->bed;
                 $permintaanKamar->update();
 
@@ -148,17 +171,17 @@ class PermintaanKamarInapController extends Controller
                 ]);
 
                 RiwayatKamarPasien::create([
-                    'no_rawat'=> $permintaanKamar->no_rawat,
-                    "bed" => $permintaanKamar->bed,
-                    "tarif_per_malam" => $permintaanKamar->tarif,
-                    "waktu_mulai"=>now(),
+                    'no_rawat' => $permintaanKamar->no_rawat,
+                    "bed" => $bed_data->bed,
+                    "tarif_per_malam" => $bed_data->tarif,
+                    "waktu_mulai" => now(),
                     "lama_inap" => 1,
-                    "tarif_total_inap" => $permintaanKamar->tarif,
+                    "tarif_total_inap" => $bed_data->tarif,
                     "status"
                 ]);
             } else {
                 $permintaanKamar->bed_akhir = null;
-                $permintaanKamar->update();
+                $permintaanKamar->save();
             }
 
             DB::commit();

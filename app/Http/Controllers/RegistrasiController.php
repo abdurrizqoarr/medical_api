@@ -50,11 +50,10 @@ class RegistrasiController extends Controller
                 });
             }
 
-            // Sorting berdasarkan waktu_registrasi (default) atau antrian_poli
             $sortBy = $request->query('sort_by', 'waktu_registrasi');
             $sortOrder = $request->query('sort_order', 'asc');
 
-            if (!in_array($sortBy, ['waktu_registrasi', 'antrian_poli'])) {
+            if (!in_array($sortBy, ['waktu_registrasi'])) {
                 $sortBy = 'waktu_registrasi';
             }
 
@@ -63,6 +62,134 @@ class RegistrasiController extends Controller
             // Ambil data
             $registrasi = $query->with('pasienData')
                 ->with('poliData')
+                ->with('dokterData')
+                ->with('jaminanData')
+                ->get();
+
+            return response()->json([
+                'data' => $registrasi
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function pasienRalan(Request $request)
+    {
+        try {
+            $query = Registrasi::query();
+
+            // Filter berdasarkan tanggal
+            $tanggalMulai = $request->query('tanggal_mulai', today()->toDateString());
+            $tanggalAkhir = $request->query('tanggal_akhir', today()->toDateString());
+
+            $query
+                ->where('status_rawat', 'RALAN')
+                ->whereBetween('waktu_registrasi', [$tanggalMulai . ' 00:00:00', $tanggalAkhir . ' 23:59:59']);
+
+            // Filter berdasarkan status_periksa, jaminan, status_bayar, poli, dokter
+            if ($request->filled('status_periksa')) {
+                $query->where('status_periksa', $request->status_periksa);
+            }
+            if ($request->filled('jaminan')) {
+                $query->where('jaminan', $request->jaminan);
+            }
+            if ($request->filled('status_bayar')) {
+                $query->where('status_bayar', $request->status_bayar);
+            }
+            if ($request->filled('poli')) {
+                $query->where('poli', $request->poli);
+            }
+            if ($request->filled('dokter')) {
+                $query->where('dokter', $request->dokter);
+            }
+
+            // Filter berdasarkan no_rm, nama_pasien, no_ktp di tabel pasien
+            if ($request->filled('cari')) {
+                $cari = $request->cari;
+                $query->whereHas('pasienData', function ($q) use ($cari) {
+                    $q->where('no_rm', 'LIKE', "%$cari%")
+                        ->orWhere('nama_pasien', 'LIKE', "%$cari%")
+                        ->orWhere('no_ktp', 'LIKE', "%$cari%");
+                });
+            }
+
+            $sortBy = $request->query('sort_by', 'waktu_registrasi');
+            $sortOrder = $request->query('sort_order', 'asc');
+
+            if (!in_array($sortBy, ['waktu_registrasi'])) {
+                $sortBy = 'waktu_registrasi';
+            }
+
+            $query->orderBy($sortBy, $sortOrder);
+
+            // Ambil data
+            $registrasi = $query->with('pasienData')
+                ->with('poliData')
+                ->with('dokterData')
+                ->with('jaminanData')
+                ->get();
+
+            return response()->json([
+                'data' => $registrasi
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan server ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function pasienRanap(Request $request)
+    {
+        try {
+            $query = Registrasi::query();
+
+            // Filter berdasarkan tanggal
+            $tanggalMulai = $request->query('tanggal_mulai', today()->toDateString());
+            $tanggalAkhir = $request->query('tanggal_akhir', today()->toDateString());
+
+            $query
+                ->join('riwayat_kamar_pasien', 'registrasi.no_rawat', '=', 'riwayat_kamar_pasien.no_rawat')
+                ->join('bed', 'riwayat_kamar_pasien.bed', '=', 'bed.id')
+                ->join('bangsal', 'bed.bangsal', '=', 'bangsal.id')
+                ->where('status_rawat', 'RANAP')
+                ->whereBetween('waktu_registrasi', [$tanggalMulai . ' 00:00:00', $tanggalAkhir . ' 23:59:59']);
+
+            // Filter berdasarkan status_periksa, jaminan, status_bayar, poli, dokter
+            if ($request->filled('jaminan')) {
+                $query->where('jaminan', $request->jaminan);
+            }
+            if ($request->filled('status_bayar')) {
+                $query->where('status_bayar', $request->status_bayar);
+            }
+            if ($request->filled('dokter')) {
+                $query->where('dokter', $request->dokter);
+            }
+
+            // Filter berdasarkan no_rm, nama_pasien, no_ktp di tabel pasien
+            if ($request->filled('cari')) {
+                $cari = $request->cari;
+                $query->whereHas('pasienData', function ($q) use ($cari) {
+                    $q->where('no_rm', 'LIKE', "%$cari%")
+                        ->orWhere('nama_pasien', 'LIKE', "%$cari%")
+                        ->orWhere('no_ktp', 'LIKE', "%$cari%");
+                });
+            }
+
+            $sortBy = $request->query('sort_by', 'waktu_registrasi');
+            $sortOrder = $request->query('sort_order', 'asc');
+
+            if (!in_array($sortBy, ['waktu_registrasi'])) {
+                $sortBy = 'waktu_registrasi';
+            }
+
+            $query->orderBy($sortBy, $sortOrder);
+
+            // Ambil data
+            $registrasi = $query->with('pasienData')
                 ->with('dokterData')
                 ->with('jaminanData')
                 ->get();
@@ -216,7 +343,7 @@ class RegistrasiController extends Controller
 
             if (!empty($updateData)) {
                 $dataRegis->update($updateData);
-            }else {
+            } else {
                 return response()->json([
                     'message' => 'Tidak ada data yang diperbarui'
                 ], 422);

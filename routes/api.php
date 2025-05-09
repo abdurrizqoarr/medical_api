@@ -252,4 +252,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     route::get('/data-permintaan-rawat-inap', [PermintaanKamarInapController::class, 'index']);
     route::post('/buat-permintaan-rawat-inap', [PermintaanKamarInapController::class, 'store']);
+    route::post('/pindah-rawat-inap/{id}', [PermintaanKamarInapController::class, 'pindahRanap']);
 });
